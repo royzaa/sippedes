@@ -1,0 +1,6 @@
+package com.toyareka.sippedes
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
