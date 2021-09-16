@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import './screens/letter_screen/letter_screen.dart';
-import './screens/profile_screen.dart';
+import 'screens/profile_screen/profile_screen.dart';
 
 class MainApp extends StatefulWidget {
   const MainApp({Key? key}) : super(key: key);
@@ -48,7 +48,7 @@ class _MainAppState extends State<MainApp> {
           lastPressed = DateTime.now();
 
           Fluttertoast.showToast(
-              msg: 'Klik 2x untuk menutup aplikasi',
+              msg: 'Ketuk dua kali untuk menutup aplikasi',
               fontSize: 18,
               toastLength: Toast.LENGTH_LONG);
           Timer(maxDuration, () => Fluttertoast.cancel());

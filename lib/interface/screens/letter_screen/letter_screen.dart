@@ -15,6 +15,23 @@ class _LetterScreenState extends State<LetterScreen> {
 
   bool lanchShadow = false;
 
+  String getTimeSession() {
+    String session = '';
+
+    int hour = DateTime.now().hour;
+
+    if (hour > 4 && hour < 12) {
+      session = 'Selamat pagi';
+    } else if (hour >= 12 && hour < 15) {
+      session = 'Selamat siang';
+    } else if (hour >= 15 && hour <= 18) {
+      session = 'Selamat sore';
+    } else {
+      session = 'Selamat malam';
+    }
+    return session;
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -91,16 +108,16 @@ class _LetterScreenState extends State<LetterScreen> {
           top: MediaQuery.of(context).padding.top + 12,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
-                'Selamat pagi',
-                style: TextStyle(
+                getTimeSession(),
+                style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Text(
+              const Text(
                 'Bapak Budi',
                 style: TextStyle(
                     color: Colors.black,

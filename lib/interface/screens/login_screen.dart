@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../services/shared_preferences.dart';
+import '../main_app.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -127,6 +128,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (validate()) {
                     DataSharedPreferences.setNIK(controller.text);
                   }
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MainApp(),
+                    ),
+                  );
                 },
                 child: SizedBox(
                   width: size.width * 0.5,
@@ -142,12 +149,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const Text(
-                'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa',
+                'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa\nDesa Toyareka',
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 12,
                 ),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(
                 height: 20,
