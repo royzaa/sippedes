@@ -1,0 +1,23 @@
+{
+  "3303010000000000": {
+    "Nama": "Budi Hatmawan",
+    "Alamat": "Toyareka RT 01/10",
+    "Ttgl": "Jakarta, 5 Juli 2012",
+    "Jenis Kelamin": "Laki-laki",
+    "NIK": 3303010000000000
+  },
+  "3303010000000010": {
+    "Nama": "Rangga Saptono",
+    "Alamat": "Toyareka RT 5/8",
+    "Ttgl": "Bandung, 1 Maret 1995",
+    "Jenis Kelamin": "Laki-laki",
+    "NIK": 3303010000000010
+  },
+  "3303010000000020": {
+    "Nama": "Rahmalia Putri",
+    "Alamat": "Karangmalang blok E",
+    "Ttgl": "Purbalingga, 8 Februari 2000",
+    "Jenis Kelamin": "Perempuan",
+    "NIK": 3303010000000020
+  }
+}

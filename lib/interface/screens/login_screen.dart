@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../services/shared_preferences.dart';
 import '../main_app.dart';
+import '../../services/firestore_services.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -124,16 +125,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   shadowColor: Theme.of(context).primaryColor.withOpacity(0.25),
                   elevation: 20,
                 ),
-                onPressed: () {
+                onPressed: () async {
                   if (validate()) {
-                    DataSharedPreferences.setNIK(controller.text);
+                    if (await FirestoreServices.validateUser(controller.text)) {
+                      DataSharedPreferences.setNIK(controller.text);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MainApp(),
+                        ),
+                      );
+                      debugPrint('submit true executed');
+                    } else {
+                      showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                                content: const Text(
+                                    'Maaf, anda bukan warga Desa Toyareka'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      'Ok',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
+                              ));
+                    }
                   }
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const MainApp(),
-                    ),
-                  );
                 },
                 child: SizedBox(
                   width: size.width * 0.5,

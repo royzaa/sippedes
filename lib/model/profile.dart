@@ -1,4 +1,4 @@
-import '../services/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Profile {
   final String name, address, gender, nik, ttgl;
@@ -9,11 +9,13 @@ class Profile {
       required this.name,
       required this.nik,
       required this.ttgl});
-}
 
-Profile userProfile = Profile(
-    address: 'Toyareka RT 02/10',
-    gender: 'Laki-laki',
-    name: 'Budi Hatmawan',
-    nik: DataSharedPreferences.getNIK(),
-    ttgl: 'Bandung, 10 Maret 1995');
+  factory Profile.fromJson(Map<String, dynamic> json) {
+    return Profile(
+        address: json['Alamat'],
+        gender: json['Jenis Kelamin'],
+        name: json['Nama'],
+        nik: json['NIK'].toString(),
+        ttgl: json['Ttgl']);
+  }
+}

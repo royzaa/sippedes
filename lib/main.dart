@@ -1,13 +1,18 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import './services/shared_preferences.dart';
 import './interface/screens/login_screen.dart';
 import './interface/main_app.dart';
+import './services/firestore_services.dart';
+import './services/sheet_api.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DataSharedPreferences.init();
+  await Firebase.initializeApp().then((value) => FirestoreServices.init());
+  await SheetApi.init();
   runApp(const MyApp());
 }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../letter_form/letter_form.dart';
+
 class Letteritem extends StatelessWidget {
   const Letteritem(
       {Key? key, required this.color, required this.image, required this.name})
@@ -19,7 +21,13 @@ class Letteritem extends StatelessWidget {
       children: [
         Flexible(
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) =>
+                          const LetterForm(letterName: 'Surat Pindah')));
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),
               decoration: BoxDecoration(

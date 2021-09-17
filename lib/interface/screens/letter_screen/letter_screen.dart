@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import './widgets/notification_icon.dart';
 import './widgets/letter_grid.dart';
+import '../../../services/shared_preferences.dart';
+import '../../../services/firestore_services.dart';
 
 class LetterScreen extends StatefulWidget {
   const LetterScreen({Key? key}) : super(key: key);
@@ -14,6 +16,12 @@ class _LetterScreenState extends State<LetterScreen> {
   final _scrollController = ScrollController();
 
   bool lanchShadow = false;
+
+  String name = '';
+
+  String? gender = '';
+
+  String userName = '';
 
   String getTimeSession() {
     String session = '';
@@ -30,6 +38,18 @@ class _LetterScreenState extends State<LetterScreen> {
       session = 'Selamat malam';
     }
     return session;
+  }
+
+  @override
+  void initState() {
+    FirestoreServices.getUserProfile().then((value) {
+      name = value.name;
+      gender = value.gender;
+      userName = gender == "Laki-laki" ? "Bapak $name" : "Ibu $name";
+      DataSharedPreferences.setUserName(name);
+      setState(() {});
+    });
+    super.initState();
   }
 
   @override
@@ -81,6 +101,9 @@ class _LetterScreenState extends State<LetterScreen> {
                   padding: EdgeInsets.only(left: 25, right: 20),
                   child: LetterGrid(),
                 ),
+                const SizedBox(
+                  height: 30,
+                ),
               ],
             ),
           ),
@@ -117,9 +140,9 @@ class _LetterScreenState extends State<LetterScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const Text(
-                'Bapak Budi',
-                style: TextStyle(
+              Text(
+                userName,
+                style: const TextStyle(
                     color: Colors.black,
                     fontSize: 16,
                     fontWeight: FontWeight.w600),
