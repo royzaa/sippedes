@@ -23,10 +23,14 @@ class Letteritem extends StatelessWidget {
           child: InkWell(
             onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) =>
-                          const LetterForm(letterName: 'Surat Pindah')));
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LetterForm(
+                    letterName: 'Surat Pindah',
+                    appColor: color,
+                  ),
+                ),
+              );
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 10),

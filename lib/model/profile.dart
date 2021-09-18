@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Profile {
   final String name, address, gender, nik, ttgl;
 

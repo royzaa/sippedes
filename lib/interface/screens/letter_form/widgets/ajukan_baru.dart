@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,7 +13,8 @@ import '../../../../services/firestore_services.dart';
 import '../../../../services/sheet_api.dart';
 
 class AjukanBaru extends StatefulWidget {
-  const AjukanBaru({Key? key}) : super(key: key);
+  const AjukanBaru({Key? key, required this.color}) : super(key: key);
+  final Color color;
 
   @override
   State<AjukanBaru> createState() => _AjukanBaruState();
@@ -39,20 +42,26 @@ class _AjukanBaruState extends State<AjukanBaru> {
 
   void pickImage() async {
     try {
-      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+      );
       if (image == null) return;
 
       final tempImage = File(image.path);
       setState(() {
         this.image = tempImage;
+        _fileName = DataSharedPreferences.getNIK() +
+            '_KTP_' +
+            basename(this.image!.path);
       });
     } on PlatformException catch (e) {
       debugPrint('Error when pick image: $e');
     }
   }
 
+  late String _fileName;
   void uploadImageToFirebase(BuildContext context) async {
-    final fileName = basename(image!.path);
+    final fileName = _fileName;
 
     final destination = 'foto_KTP/$_userNIK/$fileName';
     await FirebaseStorageServices.uploadFile(destination, image!)!.whenComplete(
@@ -62,6 +71,24 @@ class _AjukanBaruState extends State<AjukanBaru> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    FirebaseMessaging.instance.getInitialMessage();
+
+    debugPrint(
+        'issupported: ' + FirebaseMessaging.instance.isSupported().toString());
+    FirebaseMessaging.instance.requestPermission();
+    FirebaseMessaging.onMessage.listen((message) {
+      debugPrint('message from cloud:' + message.notification!.body.toString());
+    });
+
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+      debugPrint(
+          'token: ' + (await FirebaseMessaging.instance.getToken()).toString());
+    });
+    super.initState();
   }
 
   @override
@@ -78,6 +105,7 @@ class _AjukanBaruState extends State<AjukanBaru> {
       child: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(
               height: 30,
@@ -114,26 +142,50 @@ class _AjukanBaruState extends State<AjukanBaru> {
             ),
             Container(
               width: size.width * 0.65,
-              height: 30,
               decoration: BoxDecoration(
                   border: Border.all(
                     color: Colors.black,
                     width: 1,
                   ),
                   shape: BoxShape.rectangle),
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              child: image == null
-                  ? ElevatedButton(
-                      onPressed: pickImage,
-                      child: const Text('Pilih gambar'),
-                    )
-                  : Text(
-                      basename(image!.path),
+              padding: const EdgeInsets.all(9),
+              margin: const EdgeInsets.symmetric(vertical: 15),
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: widget.color,
+                      minimumSize: const Size(double.infinity, 30),
                     ),
+                    onPressed: pickImage,
+                    child: Text(
+                      image == null ? 'Pilih foto KTP' : 'Ganti foto KTP',
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  image == null
+                      ? const SizedBox()
+                      : Text(
+                          _fileName,
+                        ),
+                ],
+              ),
+            ),
+            const SizedBox(
+              height: 30,
             ),
             Center(
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 30,
+                  shadowColor: widget.color.withOpacity(0.5),
+                  primary: Colors.black,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
                 onPressed: () async {
                   if (validate()) {
                     if (image == null) {
@@ -154,9 +206,16 @@ class _AjukanBaruState extends State<AjukanBaru> {
                     }
                   }
                 },
-                child: const Text('Simpan dan ajukan'),
+                child: Text(
+                  'Simpan dan ajukan',
+                  style: TextStyle(
+                    color: widget.color,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

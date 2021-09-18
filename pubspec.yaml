@@ -40,6 +40,8 @@ dependencies:
   firebase_storage: ^10.0.3
   gsheets: ^0.3.2
   image_picker: ^0.8.4+2
+  firebase_messaging: ^10.0.7
+  flutter_local_notifications: ^8.2.0
   
 
 dev_dependencies:

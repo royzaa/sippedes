@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../services/shared_preferences.dart';
-import '../login_screen.dart';
+import '../login_screen/login_screen.dart';
 import './widgets/biodata_list.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -54,6 +54,7 @@ class ProfileScreen extends StatelessWidget {
                                 TextButton(
                                   onPressed: () {
                                     DataSharedPreferences.setNIK('');
+                                    Navigator.pop(context);
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(
                                         builder: (context) =>

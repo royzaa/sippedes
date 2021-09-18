@@ -2,9 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../services/shared_preferences.dart';
-import '../main_app.dart';
-import '../../services/firestore_services.dart';
+import './widgets/submit_button.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -115,60 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  primary: Theme.of(context).primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shadowColor: Theme.of(context).primaryColor.withOpacity(0.25),
-                  elevation: 20,
-                ),
-                onPressed: () async {
-                  if (validate()) {
-                    if (await FirestoreServices.validateUser(controller.text)) {
-                      DataSharedPreferences.setNIK(controller.text);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const MainApp(),
-                        ),
-                      );
-                      debugPrint('submit true executed');
-                    } else {
-                      showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                                content: const Text(
-                                    'Maaf, anda bukan warga Desa Toyareka'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text(
-                                      'Ok',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  )
-                                ],
-                              ));
-                    }
-                  }
-                },
-                child: SizedBox(
-                  width: size.width * 0.5,
-                  child: const Text(
-                    'Masuk',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                  ),
-                ),
+              SubmitButton(
+                controller: controller,
+                validation: validate,
               ),
               const Text(
                 'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa\nDesa Toyareka',
