@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import './widgets/notification_icon.dart';
 import './widgets/letter_grid.dart';
@@ -21,7 +22,7 @@ class _LetterScreenState extends State<LetterScreen> {
 
   String? gender = '';
 
-  String userName = '';
+  String userName = DataSharedPreferences.getUserName();
 
   String getTimeSession() {
     String session = '';
@@ -42,13 +43,15 @@ class _LetterScreenState extends State<LetterScreen> {
 
   @override
   void initState() {
-    FirestoreServices.getUserProfile().then((value) {
-      name = value.name;
-      gender = value.gender;
-      userName = gender == "Laki-laki" ? "Bapak $name" : "Ibu $name";
-      DataSharedPreferences.setUserName(name);
-      setState(() {});
-    });
+    if (userName.isEmpty) {
+      FirestoreServices.getUserProfile().then((value) {
+        name = value.name;
+        gender = value.gender;
+        userName = gender == "Laki-laki" ? "Bapak $name" : "Ibu $name";
+        DataSharedPreferences.setUserName(name);
+        setState(() {});
+      });
+    }
     super.initState();
   }
 
@@ -163,9 +166,13 @@ class _LetterScreenState extends State<LetterScreen> {
             ),
           ),
         ),
-        const Positioned(
+        Positioned(
           right: 0,
-          child: NotificationIcon(),
+          child: StreamProvider<int>(
+            create: (_) => FirestoreServices.numOfNotificationSnapshot(),
+            initialData: 0,
+            child: const NotificationIcon(),
+          ),
         ),
       ],
     );

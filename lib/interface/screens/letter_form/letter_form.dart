@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import './widgets/ajukan_baru.dart';
 import './widgets/riwayat.dart';
+import '../../../model/notification.dart';
+import '../../../services/firestore_services.dart';
 
 class LetterForm extends StatelessWidget {
-  const LetterForm({Key? key, required this.letterName, required this.appColor})
-      : super(key: key);
-  final String letterName;
-  final Color appColor;
-
+  const LetterForm({
+    Key? key,
+    this.letterName,
+    this.appColor,
+    this.tabIndex = 0,
+  }) : super(key: key);
+  final String? letterName;
+  final Color? appColor;
+  final int tabIndex;
+  static const routeToAjukanBaru = 'ajukan-baru';
+  static const routeToRiwayat = 'riwayat';
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      initialIndex: 0,
+      initialIndex: tabIndex,
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -41,9 +50,20 @@ class LetterForm extends StatelessWidget {
         ),
         body: TabBarView(children: [
           AjukanBaru(
-            color: appColor,
+            color: appColor!,
           ),
-          const Riwayat(),
+          StreamProvider<List<NotificationModel>>(
+            initialData: [
+              NotificationModel(
+                title: 'Belum ada data',
+                body: 'Belum ada data',
+                date: 'Belum ada data',
+                readStatus: 'Belum ada daya',
+              ),
+            ],
+            create: (context) => FirestoreServices.listOfHistorySnapshot(),
+            child: const Riwayat(),
+          ),
         ]),
       ),
     );

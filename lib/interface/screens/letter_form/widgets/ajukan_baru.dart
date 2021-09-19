@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +25,7 @@ class _AjukanBaruState extends State<AjukanBaru> {
   File? image;
   final _userNIK = DataSharedPreferences.getNIK();
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   bool validate() {
     bool status = false;
@@ -60,34 +60,27 @@ class _AjukanBaruState extends State<AjukanBaru> {
   }
 
   late String _fileName;
-  void uploadImageToFirebase(BuildContext context) async {
+  late String _ktpUrl;
+  Future uploadImageToFirebase(BuildContext context) async {
     final fileName = _fileName;
 
     final destination = 'foto_KTP/$_userNIK/$fileName';
-    await FirebaseStorageServices.uploadFile(destination, image!)!.whenComplete(
-      () => ScaffoldMessenger.of(context).showSnackBar(
+    await FirebaseStorageServices.uploadFile(destination, image!)!
+        .then((p0) async {
+      setState(() {
+        isLoading = false;
+      });
+      _ktpUrl = await p0.ref.getDownloadURL();
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Pengajuan anda sudah terkirim'),
         ),
-      ),
-    );
+      );
+    });
   }
 
   @override
   void initState() {
-    FirebaseMessaging.instance.getInitialMessage();
-
-    debugPrint(
-        'issupported: ' + FirebaseMessaging.instance.isSupported().toString());
-    FirebaseMessaging.instance.requestPermission();
-    FirebaseMessaging.onMessage.listen((message) {
-      debugPrint('message from cloud:' + message.notification!.body.toString());
-    });
-
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      debugPrint(
-          'token: ' + (await FirebaseMessaging.instance.getToken()).toString());
-    });
     super.initState();
   }
 
@@ -180,40 +173,74 @@ class _AjukanBaruState extends State<AjukanBaru> {
                   elevation: 30,
                   shadowColor: widget.color.withOpacity(0.5),
                   primary: Colors.black,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 28, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () async {
-                  if (validate()) {
-                    if (image == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Foto KTP harus diisi'),
-                          duration: Duration(seconds: 3),
+                  padding: isLoading
+                      ? null
+                      : const EdgeInsets.symmetric(
+                          horizontal: 28, vertical: 15),
+                  shape: isLoading
+                      ? const CircleBorder()
+                      : RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                      );
-                    } else {
-                      uploadImageToFirebase(context);
-                      await FirestoreServices.changeProfileField(
-                          _userNIK, 'Alamat', _alamatBaru.text);
-                      await SheetApi.updateData(
-                          rowKey: DataSharedPreferences.getUserName(),
-                          columnKey: 'Alamat',
-                          newValue: _alamatBaru.text);
-                    }
-                  }
-                },
-                child: Text(
-                  'Simpan dan ajukan',
-                  style: TextStyle(
-                    color: widget.color,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
                 ),
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (validate()) {
+                          try {
+                            if (image == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Foto KTP harus diisi'),
+                                  duration: Duration(seconds: 3),
+                                ),
+                              );
+                            } else {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              final String generatedId =
+                                  (DateTime.now().millisecondsSinceEpoch ~/ 10)
+                                      .toString();
+
+                              uploadImageToFirebase(context).then(
+                                (value) async =>
+                                    await FirestoreServices.createSuratPindah(
+                                  address: _alamatBaru.text,
+                                  ktpUrl: _ktpUrl,
+                                  migratedNIK: int.parse(_userNIK),
+                                  letterId: generatedId,
+                                ),
+                              );
+                              await FirestoreServices.writeTrace(
+                                  letterId: generatedId,
+                                  letterType: LetterType.suratPindah,
+                                  registredNIK: _userNIK);
+                              await FirestoreServices.changeProfileField(
+                                  _userNIK, 'Alamat', _alamatBaru.text);
+                              await SheetApi.updateData(
+                                  rowKey: DataSharedPreferences.getUserName(),
+                                  columnKey: 'Alamat',
+                                  newValue: _alamatBaru.text);
+                            }
+                          } catch (e) {
+                            debugPrint('error when submit new letter: ' +
+                                e.toString());
+                          }
+                        }
+                      },
+                child: isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(color: widget.color),
+                      )
+                    : Text(
+                        'Simpan dan ajukan',
+                        style: TextStyle(
+                          color: widget.color,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],

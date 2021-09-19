@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import './services/shared_preferences.dart';
-import 'interface/screens/login_screen/login_screen.dart';
+import './interface/screens/login_screen/login_screen.dart';
 import './interface/main_app.dart';
 import './services/firestore_services.dart';
 import './services/sheet_api.dart';
+import './services/local_notification_services.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  LocalNotificationServices.initialize();
   await DataSharedPreferences.init();
   await Firebase.initializeApp().then((value) => FirestoreServices.init());
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -23,7 +25,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
 
-  print("Handling a background message: ${message.messageId}");
+  debugPrint("Handling a background message: ${message.messageId}");
 }
 
 class MyApp extends StatelessWidget {
@@ -31,6 +33,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseMessaging.instance.getInitialMessage();
+
+    FirebaseMessaging.onMessage.listen((message) {
+      debugPrint('message from cloud:' + message.notification!.body.toString());
+      LocalNotificationServices.display(message);
+    });
+
+    FirebaseMessaging.instance.subscribeToTopic('letter');
+
     return MaterialApp(
       title: 'SIPPeDes',
       theme: ThemeData(
