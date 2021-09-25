@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../services/firestore_services.dart';
+import '../../../../services/auth_services.dart';
 import '../../../../model/profile.dart';
 
 class BiodataList extends StatelessWidget {
@@ -8,9 +9,10 @@ class BiodataList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = AuthService();
     const double bottomSpacing = 25.0;
     return FutureBuilder(
-      future: FirestoreServices.getUserProfile(),
+      future: FirestoreServices.getUserProfile(auth.getCurrentUser!.uid),
       builder: (_, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../services/shared_preferences.dart';
-import '../login_screen/login_screen.dart';
+import '../auth_screen/login_screen.dart';
 import './widgets/biodata_list.dart';
+import '../../../services/auth_services.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -11,6 +12,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+    final auth = AuthService();
     return Column(
       children: [
         Flexible(
@@ -54,6 +56,8 @@ class ProfileScreen extends StatelessWidget {
                                 TextButton(
                                   onPressed: () {
                                     DataSharedPreferences.setNIK('');
+                                    DataSharedPreferences.setUserName('');
+                                    auth.signOut();
                                     Navigator.pop(context);
                                     Navigator.of(context).pushReplacement(
                                       MaterialPageRoute(

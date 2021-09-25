@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './widgets/ajukan_baru.dart';
-import './widgets/riwayat.dart';
+import './widgets/tab/ajukan_baru.dart';
+import './widgets/tab/riwayat.dart';
 import '../../../model/notification.dart';
 import '../../../services/firestore_services.dart';
 
@@ -50,6 +50,7 @@ class LetterForm extends StatelessWidget {
         ),
         body: TabBarView(children: [
           AjukanBaru(
+            letterName: letterName ?? '',
             color: appColor!,
           ),
           StreamProvider<List<NotificationModel>>(

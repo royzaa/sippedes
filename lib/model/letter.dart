@@ -37,19 +37,11 @@ const serviceableLetter = <Letter>[
     color: Color.fromRGBO(166, 255, 212, 1),
   ),
   Letter(
-    name: 'Surat Jalan',
-    color: Color.fromRGBO(194, 166, 255, 1),
-  ),
-  Letter(
     name: 'Surat Kematian',
     color: Color.fromRGBO(255, 246, 166, 1),
   ),
   Letter(
     name: 'Keterangan Usaha',
     color: Color.fromRGBO(234, 211, 190, 1),
-  ),
-  Letter(
-    name: 'Surat Domisili',
-    color: Color.fromRGBO(225, 255, 175, 1),
   ),
 ];

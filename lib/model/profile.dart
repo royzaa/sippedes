@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Profile {
   final String name, address, gender, nik, ttgl;
 
@@ -8,12 +10,13 @@ class Profile {
       required this.nik,
       required this.ttgl});
 
-  factory Profile.fromJson(Map<String, dynamic> json) {
+  factory Profile.fromJson(QueryDocumentSnapshot<Map<String, dynamic>> json) {
+    final jsonData = json.data();
     return Profile(
-        address: json['Alamat'],
-        gender: json['Jenis Kelamin'],
-        name: json['Nama'],
-        nik: json['NIK'].toString(),
-        ttgl: json['Ttgl']);
+        address: jsonData['Alamat'],
+        gender: jsonData['Jenis Kelamin'],
+        name: jsonData['Nama'],
+        nik: jsonData['NIK'].toString(),
+        ttgl: jsonData['Ttgl']);
   }
 }

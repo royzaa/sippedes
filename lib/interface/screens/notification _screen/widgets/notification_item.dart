@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../services/firestore_services.dart';
+import '../../../../services/firestore_services.dart'
+    show FirestoreLetterServices;
 import '../../../../services/shared_preferences.dart';
 import '../../letter_form/letter_form.dart';
 
@@ -22,7 +23,7 @@ class NotificationItem extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
     return InkWell(
       onTap: () {
-        FirestoreServices.changeLetterStatus(
+        FirestoreLetterServices.changeLetterStatus(
             registredNIK: DataSharedPreferences.getNIK(),
             letterId: letterId,
             readStatus: 'read');

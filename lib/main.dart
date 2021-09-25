@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import './services/shared_preferences.dart';
-import './interface/screens/login_screen/login_screen.dart';
+import './interface/screens/auth_screen/login_screen.dart';
 import './interface/main_app.dart';
 import './services/firestore_services.dart';
-import './services/sheet_api.dart';
 import './services/local_notification_services.dart';
 
 Future main() async {
@@ -16,7 +15,6 @@ Future main() async {
   await DataSharedPreferences.init();
   await Firebase.initializeApp().then((value) => FirestoreServices.init());
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await SheetApi.init();
   runApp(const MyApp());
 }
 
@@ -40,8 +38,6 @@ class MyApp extends StatelessWidget {
       LocalNotificationServices.display(message);
     });
 
-    FirebaseMessaging.instance.subscribeToTopic('letter');
-
     return MaterialApp(
       title: 'SIPPeDes',
       theme: ThemeData(
@@ -50,9 +46,7 @@ class MyApp extends StatelessWidget {
           primaryTextTheme: const TextTheme(
             subtitle1: TextStyle(color: Colors.black, fontSize: 16),
           )),
-      home: DataSharedPreferences.getNIK() == ''
-          ? const LoginScreen()
-          : const MainApp(),
+      home: const MainApp(),
     );
   }
 }

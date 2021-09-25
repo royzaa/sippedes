@@ -26,7 +26,7 @@ class Letteritem extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (_) => LetterForm(
-                    letterName: 'Surat Pindah',
+                    letterName: name,
                     appColor: color,
                   ),
                 ),
