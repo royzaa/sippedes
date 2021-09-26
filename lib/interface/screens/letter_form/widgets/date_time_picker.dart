@@ -28,17 +28,9 @@ class _BirthState extends State<DateTimePicker> {
   void pickDate() {
     showDatePicker(
       context: context,
-      initialDate: DateTime(
-        DateTime.now().year - 17,
-        DateTime.now().month,
-        DateTime.now().day,
-      ),
+      initialDate: DateTime.now(),
       firstDate: DateTime(1921),
-      lastDate: DateTime(
-        DateTime.now().year - 17,
-        DateTime.now().month,
-        DateTime.now().day,
-      ),
+      lastDate: DateTime.now(),
     ).then((date) {
       if (date != null) {
         setState(() {
