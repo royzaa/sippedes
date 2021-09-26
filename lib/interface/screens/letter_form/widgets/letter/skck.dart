@@ -14,45 +14,30 @@ import '../../../../../services/sheet_api.dart';
 import '../text_input_field.dart';
 import '../submit_form_button.dart';
 import '../image_selector.dart';
-import '../gender.dart';
-import '../education_degree.dart';
 import '../relationship_status.dart';
+import '../religion.dart';
 import '../birth.dart';
-import '../ktp.dart';
-import '../kk.dart';
 
-class SuratPindah extends StatefulWidget {
-  const SuratPindah({Key? key, required this.color, required this.letterName})
+class Skck extends StatefulWidget {
+  const Skck({Key? key, required this.color, required this.letterName})
       : super(key: key);
   final Color color;
   final String letterName;
 
   @override
-  State<SuratPindah> createState() => _SuratPindahState();
+  State<Skck> createState() => _SkckState();
 }
 
-class _SuratPindahState extends State<SuratPindah> {
+class _SkckState extends State<Skck> {
   final TextEditingController _address = TextEditingController();
-  final TextEditingController _previousAddress = TextEditingController();
   final TextEditingController _name = TextEditingController();
   final TextEditingController _job = TextEditingController();
-  final TextEditingController _education = TextEditingController();
-  final TextEditingController _father = TextEditingController();
-  final TextEditingController _mother = TextEditingController();
-  final TextEditingController _excuse = TextEditingController();
+  final TextEditingController _religion = TextEditingController();
+  final TextEditingController _necessity = TextEditingController();
   final TextEditingController _nik = TextEditingController();
   final TextEditingController _nationality = TextEditingController();
-  final Map<String, String> _followers = {};
-  String? _ktpFileName,
-      _kkFileName,
-      _photoFileName,
-      _ktpUrl,
-      _photoUrl,
-      _kkUrl,
-      _ttgl,
-      _jk,
-      _relationshipStatus;
-  File? ktpImage, kkImage, photoImage;
+  String? _ktpFileName, _ktpUrl, _ttgl, _relationshipStatus;
+  File? image;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -109,8 +94,8 @@ class _SuratPindahState extends State<SuratPindah> {
       });
       fileUrl = await p0.ref.getDownloadURL();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Dokumen $fileName sudah terkirim'),
+        const SnackBar(
+          content: Text('Pengajuan anda sudah terkirim'),
         ),
       );
     });
@@ -119,7 +104,7 @@ class _SuratPindahState extends State<SuratPindah> {
   void submitForm(BuildContext context) async {
     if (validate()) {
       try {
-        if (kkImage == null && ktpImage == null && photoImage == null) {
+        if (image == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen berupa foto belum lengkap'),
@@ -134,48 +119,29 @@ class _SuratPindahState extends State<SuratPindah> {
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
 
           uploadImageToFirebase(
-                  fileUrl: _ktpUrl,
+                  image: image,
                   context: context,
-                  image: ktpImage,
-                  picFileName: _ktpFileName ?? _nik.text,
+                  fileUrl: _ktpUrl,
+                  picFileName: _ktpFileName,
                   expctedImageType: 'KTP')
               .then(
-            (value) async => await FirestoreLetterServices.createSuratPindah(
-              education: _education.text,
-              excuse: _excuse.text, // done
-              father: _father.text, // done
-              jk: _jk ?? 'Belum diisi',
-              job: _job.text,
-              kkUrl: _kkUrl ?? 'Belum diisi', // done
-              mother: _mother.text, // done
-              name: _name.text, // done
-              nationality: _nationality.text, // done
-              photoUrl: _photoUrl ?? '', // done
-              previousAddress: _previousAddress.text, // done
-              relationshipStatus: _relationshipStatus ?? 'Belum diisi',
-              ttgl: _ttgl ?? 'Belum diisi', // done
-              address: _address.text, // done
-              ktpUrl: _ktpUrl ?? 'Belum diisi', // done
-              migratedNIK: _nik.text, // done
-              followers: _followers,
-              letterId: generatedId, // done
-            ),
+            (value) async => await FirestoreLetterServices.createSKCK(
+                address: _address.text, // done
+                ktpUrl: _ktpUrl ?? 'Belum diisi', // done
+                name: _name.text, // dene
+                ttgl: _ttgl ?? 'Belum diisi', // done
+                nationality: _nationality.text, // done
+                relationshipStatus:
+                    _relationshipStatus ?? 'Belum diisi', // done
+                religion: _religion.text, // done
+                job: _job.text, // done
+                necessity: _necessity.text, // done
+                nik: _nik.text, // dine
+                letterId: generatedId), // done
           );
-          uploadImageToFirebase(
-              context: context,
-              expctedImageType: 'KK',
-              image: kkImage,
-              fileUrl: _kkUrl,
-              picFileName: _kkFileName);
-          uploadImageToFirebase(
-              context: context,
-              expctedImageType: 'Photo',
-              image: photoImage,
-              fileUrl: _photoUrl,
-              picFileName: _photoFileName);
           await FirestoreLetterServices.writeLetterStatus(
               letterId: generatedId,
-              letterType: LetterType.suratPindah,
+              letterType: LetterType.skck,
               registredNIK: DataSharedPreferences.getNIK());
 
           /// Digunakan oleh admin:
@@ -259,17 +225,9 @@ class _SuratPindahState extends State<SuratPindah> {
                   },
                 ),
 
-                // JENIS KELAMIN
-
-                Gender(
-                  value: (jk) {
-                    _jk = jk;
-                  },
-                ),
-
                 // PENDIDIKAN
 
-                EducationDegree(education: _education),
+                Religion(religion: _religion),
 
                 // PEKERJAAN
 
@@ -288,81 +246,26 @@ class _SuratPindahState extends State<SuratPindah> {
                   },
                 ),
 
-                // ORANG TUA
-
-                const Text(
-                  'Nama orang tua',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                TextInputField(
-                  isCustom: true,
-                  color: widget.color,
-                  controller: _father,
-                  fieldName: 'Ayah',
-                ),
-                TextInputField(
-                  isCustom: true,
-                  color: widget.color,
-                  controller: _mother,
-                  fieldName: 'Ibu',
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-
                 // ALAMAT BARU
 
                 TextInputField(
                   color: widget.color,
                   controller: _address,
-                  fieldName: 'Alamat baru',
-                ),
-
-                // ALAMAT LAMA
-
-                TextInputField(
-                  color: widget.color,
-                  controller: _previousAddress,
-                  fieldName: 'Alamat lama',
+                  fieldName: 'Alamat',
                 ),
 
                 // ALASAN PINDAH
 
                 TextInputField(
                   color: widget.color,
-                  controller: _excuse,
-                  fieldName: 'Alasan pindah',
+                  controller: _necessity,
+                  fieldName: 'Keperluan',
                 ),
 
                 // KTP
-                Ktp(
-                  ktpFileName: _ktpFileName ?? '',
-                  color: widget.color,
-                  image: ktpImage,
-                  pickImage: () => pickImage(
-                    image: ktpImage,
-                    expctedImageType: 'KTP',
-                    fileName: _ktpFileName ?? '',
-                  ),
-                ),
 
-                // KK
-                Kk(
-                  kkFileName: _kkFileName ?? '',
-                  color: widget.color,
-                  image: kkImage,
-                  pickImage: () => pickImage(
-                      image: kkImage,
-                      expctedImageType: 'KK',
-                      fileName: _kkFileName ?? ''),
-                ),
-
-                // PHOTO
                 const Text(
-                  'Pilih foto formal',
+                  'Ambil foto KTP',
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -370,17 +273,19 @@ class _SuratPindahState extends State<SuratPindah> {
                 ),
                 ImageSelector(
                   color: widget.color,
-                  expectedImageType: 'Photo',
-                  fileName: _photoFileName ?? '',
-                  image: photoImage,
+                  expectedImageType: 'KTP',
+                  fileName: _ktpFileName ?? '',
+                  image: image,
                   pickImage: () => pickImage(
-                      image: photoImage,
-                      expctedImageType: 'KK',
-                      fileName: _photoFileName ?? ''),
+                    image: image,
+                    expctedImageType: 'KTP',
+                    fileName: _ktpFileName ?? '',
+                  ),
                 ),
                 const SizedBox(
                   height: 30,
                 ),
+
                 Center(
                   child: SubmitFormButton(
                     color: widget.color,

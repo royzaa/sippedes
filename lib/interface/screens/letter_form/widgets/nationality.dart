@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 
-class Gender extends StatefulWidget {
-  const Gender({Key? key, required this.value}) : super(key: key);
+class Nationality extends StatefulWidget {
+  const Nationality({Key? key, required this.value}) : super(key: key);
   final void Function(String) value;
 
   @override
-  State<Gender> createState() => _GenderState();
+  State<Nationality> createState() => _NationalityState();
 }
 
-class _GenderState extends State<Gender> {
+class _NationalityState extends State<Nationality> {
   int selectedIndex = 0;
 
+  final listNat = ['WNI', 'WNA'];
+
   void storeValue() {
-    if (selectedIndex == 0) {
-      widget.value('Laki-laki');
-    } else {
-      widget.value('Perempuan');
-    }
+    widget.value(listNat[selectedIndex]);
   }
 
   @override
@@ -27,7 +25,7 @@ class _GenderState extends State<Gender> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Jenis kelamin',
+            'Kewarganegaraan',
             style: TextStyle(
                 color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
           ),
@@ -38,10 +36,10 @@ class _GenderState extends State<Gender> {
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
               children: [
-                ...['Laki-laki', 'Perempuan'].asMap().entries.map(
+                ...listNat.asMap().entries.map(
                   (entry) {
                     final index = entry.key;
-                    final jk = entry.value;
+                    final nat = entry.value;
                     return InkWell(
                       onTap: () {
                         setState(() {
@@ -71,7 +69,7 @@ class _GenderState extends State<Gender> {
                               width: 15,
                             ),
                             Text(
-                              jk,
+                              nat,
                               style: const TextStyle(
                                 fontSize: 16,
                               ),

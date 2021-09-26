@@ -45,7 +45,6 @@ dependencies:
   flutter_local_notifications: ^8.2.0
   flutter_native_splash: ^1.2.3
   intl: ^0.17.0
-  country_state_city_picker: ^1.2.8
   open_mail_app: ^0.3.0
   
 

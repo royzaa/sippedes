@@ -501,6 +501,8 @@ class FirestoreLetterServices {
     required String relationshipStatus,
     required String job,
     required String necessity,
+
+    /// what, when, where
     required Map<String, String> lostDescription,
     required String nik,
     required String letterId,
