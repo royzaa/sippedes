@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:country_state_city_picker/country_state_city_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,12 +39,12 @@ class _SuratPindahState extends State<SuratPindah> {
   final TextEditingController _mother = TextEditingController();
   final TextEditingController _excuse = TextEditingController();
   final TextEditingController _nik = TextEditingController();
+  final TextEditingController _nationality = TextEditingController();
   final Map<String, String> _followers = {};
   String? _fileName,
       _ktpUrl,
       _photoUrl,
       _kkUrl,
-      _nationality,
       _ttgl,
       _jk,
       _relationshipStatus;
@@ -132,7 +131,7 @@ class _SuratPindahState extends State<SuratPindah> {
               kkUrl: _kkUrl ?? 'Belum diisi', // done
               mother: _mother.text, // done
               name: _name.text, // done
-              nationality: _nationality ?? 'Belum diisi', // done
+              nationality: _nationality.text, // done
               photoUrl: _photoUrl ?? '', // done
               previousAddress: _previousAddress.text, // done
               relationshipStatus: _relationshipStatus ?? 'Belum diisi',
@@ -174,7 +173,7 @@ class _SuratPindahState extends State<SuratPindah> {
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    // final Size size = MediaQuery.of(context).size;
     return Form(
       key: _formKey,
       child: Padding(
@@ -206,18 +205,20 @@ class _SuratPindahState extends State<SuratPindah> {
                 ),
 
                 // KEWARGANEGARAAN
-                const Text(
-                  'Kewarganegaraan',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                SelectState(
-                  onCountryChanged: (country) {
-                    _nationality = country;
-                  },
-                ),
+                TextInputField(
+                    color: widget.color,
+                    controller: _nationality,
+                    customValidator: (value) {
+                      RegExp regExp = RegExp(r'^[a-zA-Z ]*$');
+                      if (value!.isEmpty) {
+                        return "Kewarganegaraan harus diisi";
+                      } else if (!(regExp.hasMatch(value))) {
+                        return "Negara hanya berupa huruf alfabet";
+                      } else {
+                        return null;
+                      }
+                    },
+                    fieldName: 'Kewarganegaraan'),
 
                 // // TTGL
 

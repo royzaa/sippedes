@@ -197,9 +197,6 @@ class _SubmitButtonState extends State<SubmitButton> {
                 widget.emailController.text, widget.passwordController.text);
             if (uid.isNotEmpty) {
               FirestoreServices.getUserProfile(uid).then((value) {
-                setState(() {
-                  _isLoading = false;
-                });
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => const MainApp()));
               });

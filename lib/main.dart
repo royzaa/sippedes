@@ -8,6 +8,7 @@ import './interface/screens/auth_screen/login_screen.dart';
 import './interface/main_app.dart';
 import './services/firestore_services.dart';
 import './services/local_notification_services.dart';
+import './services/auth_services.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +47,38 @@ class MyApp extends StatelessWidget {
           primaryTextTheme: const TextTheme(
             subtitle1: TextStyle(color: Colors.black, fontSize: 16),
           )),
-      home: const MainApp(),
+      home: const HomeController(),
+    );
+  }
+}
+
+class HomeController extends StatelessWidget {
+  const HomeController({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = AuthService();
+    final Size size = MediaQuery.of(context).size;
+    return StreamBuilder(
+      stream: auth.authStateChanged,
+      builder: (context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.hasData) {
+          if (snapshot.data!.isEmpty) {
+            return const LoginScreen();
+          } else {
+            return const MainApp();
+          }
+        } else {
+          return Center(
+            child: SizedBox(
+              width: size.width * 0.4,
+              child: LinearProgressIndicator(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }

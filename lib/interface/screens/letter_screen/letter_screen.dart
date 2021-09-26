@@ -73,8 +73,10 @@ class _LetterScreenState extends State<LetterScreen> {
     final Size size = MediaQuery.of(context).size;
     return DataSharedPreferences.getNIK().isEmpty
         ? Center(
-            child:
-                LinearProgressIndicator(color: Theme.of(context).primaryColor),
+            child: SizedBox(
+                width: size.width * 0.4,
+                child: LinearProgressIndicator(
+                    color: Theme.of(context).primaryColor)),
           )
         : Stack(
             children: <Widget>[
