@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nikController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final ValueNotifier<bool> _isPasswordNotVisible = ValueNotifier(true);
 
   bool validate() {
     bool status = false;
@@ -58,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 30,
               ),
               Text(
-                'Silakan input NIK Anda',
+                'Silakan lengkapi formulir',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
                   fontSize: 22,
@@ -150,38 +151,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      TextFormField(
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (value) {
-                          return PasswordValidator.validate(value);
+                      ValueListenableBuilder(
+                        valueListenable: _isPasswordNotVisible,
+                        builder: (context, bool isPasswordVisible, _) {
+                          return TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) {
+                              return PasswordValidator.validate(value);
+                            },
+                            obscureText: _isPasswordNotVisible.value,
+                            controller: _passwordController,
+                            cursorColor: Theme.of(context).primaryColor,
+                            decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  _isPasswordNotVisible.value =
+                                      !_isPasswordNotVisible.value;
+                                },
+                                icon: _isPasswordNotVisible.value
+                                    ? const Icon(
+                                        Icons.visibility,
+                                        color: Colors.grey,
+                                      )
+                                    : Icon(
+                                        Icons.visibility_off,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                              ),
+                              prefixIcon: Icon(
+                                Icons.lock,
+                                color: Theme.of(context).primaryColor,
+                                size: 32,
+                              ),
+                              labelText: 'Password',
+                              labelStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.4),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                              hintText: 'xxxxxxxx',
+                              hintStyle: TextStyle(
+                                color: Colors.grey[400]!.withOpacity(0.8),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                            ),
+                          );
                         },
-                        controller: _passwordController,
-                        cursorColor: Theme.of(context).primaryColor,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            color: Theme.of(context).primaryColor,
-                            size: 32,
-                          ),
-                          labelText: 'Password',
-                          labelStyle: TextStyle(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.4),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                          hintText: 'xxxxxxxx',
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400]!.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor),
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -193,14 +218,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 passwordController: _passwordController,
                 validation: validate,
               ),
-              const Text(
-                'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa\nDesa Toyareka',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+              SizedBox(
+                width: size.width * 0.85,
+                child: const FittedBox(
+                  child: Text(
+                    'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa\nDesa Toyareka',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(
                 height: 20,

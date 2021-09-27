@@ -52,7 +52,7 @@ class AuthService {
           .user!
           .uid;
 
-  void sendResetPassword(String email) async =>
+  Future<void> sendResetPassword(String email) async =>
       _firebaseAuth.sendPasswordResetEmail(email: email);
 
   void signOut() => _firebaseAuth.signOut();

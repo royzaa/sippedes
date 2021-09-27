@@ -51,7 +51,7 @@ class ProfileScreen extends StatelessWidget {
                             context: context,
                             builder: (_) => AlertDialog(
                               content: const Text(
-                                  'Jika keluar, maka anda akan menginput NIK lagi agar bisa masuk.'),
+                                  'Jika keluar, maka anda harus login lagi agar bisa masuk.'),
                               actions: [
                                 TextButton(
                                   onPressed: () {

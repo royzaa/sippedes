@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import './widgets/submit_button.dart';
 import './register_screen.dart';
 import '../../../services/auth_services.dart';
+import './widgets/reset_password_modal_bottom.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  final ValueNotifier<bool> _isPasswordNotVisible = ValueNotifier(true);
   bool validate() {
     bool status = false;
     final form = formKey.currentState;
@@ -57,10 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 30,
               ),
               Text(
-                'Silakan input NIK Anda',
+                'Selamat datang',
                 style: TextStyle(
                   color: Theme.of(context).primaryColor,
-                  fontSize: 22,
+                  fontSize: 25,
                   fontWeight: FontWeight.w600,
                 ),
                 textAlign: TextAlign.center,
@@ -113,38 +114,62 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      TextFormField(
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        validator: (value) {
-                          return PasswordValidator.validate(value);
+                      ValueListenableBuilder(
+                        valueListenable: _isPasswordNotVisible,
+                        builder: (context, bool isPasswordVisible, _) {
+                          return TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: (value) {
+                              return PasswordValidator.validate(value);
+                            },
+                            obscureText: _isPasswordNotVisible.value,
+                            controller: _passwordController,
+                            cursorColor: Theme.of(context).primaryColor,
+                            decoration: InputDecoration(
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  _isPasswordNotVisible.value =
+                                      !_isPasswordNotVisible.value;
+                                },
+                                icon: _isPasswordNotVisible.value
+                                    ? const Icon(
+                                        Icons.visibility,
+                                        color: Colors.grey,
+                                      )
+                                    : Icon(
+                                        Icons.visibility_off,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                              ),
+                              prefixIcon: Icon(
+                                Icons.lock,
+                                color: Theme.of(context).primaryColor,
+                                size: 32,
+                              ),
+                              labelText: 'Password',
+                              labelStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .primaryColor
+                                    .withOpacity(0.4),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                              hintText: 'xxxxxxxx',
+                              hintStyle: TextStyle(
+                                color: Colors.grey[400]!.withOpacity(0.8),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).primaryColor),
+                              ),
+                            ),
+                          );
                         },
-                        controller: _passwordController,
-                        cursorColor: Theme.of(context).primaryColor,
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.lock,
-                            color: Theme.of(context).primaryColor,
-                            size: 32,
-                          ),
-                          labelText: 'Password',
-                          labelStyle: TextStyle(
-                            color:
-                                Theme.of(context).primaryColor.withOpacity(0.4),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                          hintText: 'xxxxxxxx',
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400]!.withOpacity(0.8),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).primaryColor),
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -154,14 +179,34 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const Text('Belum punya akun?'),
                   TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => const RegisterScreen()));
-                      },
-                      child: Text(
-                        'Registrasi',
-                        style: TextStyle(color: Theme.of(context).primaryColor),
-                      ))
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => const RegisterScreen()));
+                    },
+                    child: Text(
+                      'Registrasi',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        backgroundColor: Colors.transparent,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(40),
+                                topRight: Radius.circular(40))),
+                        context: context,
+                        builder: (context) => const ResetPasswordModalBottom(),
+                      );
+                    },
+                    child: Text(
+                      'Lupa password',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                  ),
                 ],
               ),
               SubmitButton(
@@ -170,14 +215,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 passwordController: _passwordController,
                 validation: validate,
               ),
-              const Text(
-                'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa\nDesa Toyareka',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+              SizedBox(
+                width: size.width * 0.85,
+                child: const FittedBox(
+                  child: Text(
+                    'SIPPeDes - Sistem Informasi Pelayanan Persuratan Desa\nDesa Toyareka',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(
                 height: 20,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 
@@ -172,8 +173,15 @@ class _SubmitButtonState extends State<SubmitButton> {
               showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
+                  title: const Text(
+                    'Gagal, mohon dibaca!',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold),
+                  ),
                   content: const Text(
-                    'Maaf, anda bukan warga Desa Toyareka',
+                    'NIK anda tidak terdaftar di database kami, silakan segera datang ke Kantor Desa Toyareka untuk memperbarui data.',
                     style: TextStyle(color: Colors.black),
                   ),
                   actions: [
