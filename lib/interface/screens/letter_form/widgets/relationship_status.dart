@@ -19,7 +19,7 @@ class RelationshipStatus extends StatelessWidget {
           ),
           DropdownButtonFormField<String?>(
             decoration: const InputDecoration(
-              label: Text('Status Perkawinan'),
+              label: Text('Pilih Status Perkawinan'),
             ),
             validator: (String? value) {
               if (value == null) {

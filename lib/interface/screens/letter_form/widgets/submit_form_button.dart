@@ -5,10 +5,12 @@ class SubmitFormButton extends StatefulWidget {
       {Key? key,
       required this.color,
       required this.isLoading,
+      this.customButtonName,
       required this.submitForm})
       : super(key: key);
   final Color color;
   final bool isLoading;
+  final String? customButtonName;
   final Function(BuildContext) submitForm;
 
   @override
@@ -38,7 +40,7 @@ class _SubmitFormButtonState extends State<SubmitFormButton> {
               child: CircularProgressIndicator(color: widget.color),
             )
           : Text(
-              'Simpan dan ajukan',
+              widget.customButtonName ?? 'Simpan dan ajukan',
               style: TextStyle(
                 color: widget.color,
                 fontSize: 18,

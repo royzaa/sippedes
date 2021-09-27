@@ -18,7 +18,7 @@ class FamilyStatus extends StatelessWidget {
           ),
           DropdownButtonFormField<String?>(
             decoration: const InputDecoration(
-              label: Text('Status hubungan dalam keluarga'),
+              label: Text('Pilih status hubungan dalam keluarga'),
             ),
             validator: (String? value) {
               if (value == null) {

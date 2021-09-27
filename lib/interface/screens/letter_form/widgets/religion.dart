@@ -25,7 +25,6 @@ class Religion extends StatelessWidget {
                 return 'Agama harus diisi';
               }
             },
-            value: 'Konghucu',
             onChanged: (String? value) {
               religion.text = value ?? 'Tingkat pendidikan';
             },

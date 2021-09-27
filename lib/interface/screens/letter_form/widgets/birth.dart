@@ -90,13 +90,20 @@ class _BirthState extends State<Birth> {
             child: Row(
               children: [
                 SizedBox(
-                    width: size.width * 0.7,
-                    child: TextInputField(
-                        isUnderline: false,
-                        color: widget.color,
-                        controller: _birthDate,
-                        isEnable: false,
-                        fieldName: 'Tanggal lahir')),
+                  width: size.width * 0.7,
+                  child: ValueListenableBuilder(
+                    valueListenable: _ttglIsEmpty,
+                    builder: (_, bool textIsEmpty, __) {
+                      debugPrint(textIsEmpty.toString());
+                      return TextInputField(
+                          isUnderline: false,
+                          color: widget.color,
+                          controller: _birthDate,
+                          isEnable: textIsEmpty ? true : false,
+                          fieldName: 'Tanggal lahir');
+                    },
+                  ),
+                ),
                 const SizedBox(
                   width: 20,
                 ),

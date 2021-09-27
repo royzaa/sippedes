@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
 
-import '../../../../../services/sheet_api.dart';
 import '../text_input_field.dart';
 import '../submit_form_button.dart';
 import '../gender.dart';
@@ -11,8 +11,10 @@ import '../birth.dart';
 import '../blood_type.dart';
 import '../nationality.dart';
 import '../relationship_status.dart';
-
 import '../family_status.dart';
+import '../../../../../api/pdf_ktp_api.dart';
+import '../../../../../api/pdf_api.dart';
+import '../../../../../model/ktp_model.dart';
 
 class SuratKtp extends StatefulWidget {
   const SuratKtp({Key? key, required this.color, required this.letterName})
@@ -54,17 +56,48 @@ class _SuratKtp extends State<SuratKtp> {
     return status;
   }
 
-  @override
-  void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      await SheetApi.init();
-    });
-    super.initState();
+  Future<void> submitButton(BuildContext context) async {
+    if (validate()) {
+      final ktpData = KtpModel(
+        dataKk: DataKepalaKeluarga(
+            alamat: _address.text,
+            namaKepalaKeluarga: _namaKepalaKeluarga.text,
+            nomorKK: _noKk.text),
+        dataPenduduk: DataPenduduk(
+          agama: _religion.text,
+          ayah: _father.text,
+          goldar: _bloodType.text,
+          ibu: _mother.text,
+          jenisKelamin: _jk!,
+          kewarganegaraan: _nationality!,
+          namaLengkap: _name.text,
+          nik: _nik.text,
+          pekerjaan: _job.text,
+          statusHubunganDalamRT: _familyStatus!,
+          statusKawin: _relationshipStatus!,
+          tanggalLahir: _ttgl!.split(',')[1].trim(),
+          tempatLahir: _ttgl!.split(',')[0],
+        ),
+        tanggalDibuat: DateFormat('d MMMM y').format(DateTime.now()),
+      );
+      setState(() {
+        isLoading = true;
+      });
+      await PdfKTPApi.generate(ktpData).then((pdf) async {
+        await Future.delayed(const Duration(milliseconds: 250), () async {
+          await PdfApi.openFile(pdf);
+          setState(() {
+            isLoading = false;
+          });
+        });
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // final Size size = MediaQuery.of(context).size;
+
     return Form(
       key: _formKey,
       child: Padding(
@@ -97,6 +130,18 @@ class _SuratKtp extends State<SuratKtp> {
                   color: widget.color,
                   controller: _noKk,
                   fieldName: 'Nomor KK',
+                  customValidator: (value) {
+                    RegExp regExp = RegExp(r'^[1-9]+[0-9]*$');
+                    if (value == '' || value!.isEmpty) {
+                      return 'Nomor KK tidak boleh kosong';
+                    } else if (!regExp.hasMatch(value)) {
+                      return 'Nomor KK hanya berupa angka';
+                    } else if (!(value.length == 16)) {
+                      return 'Nomor KK berjumlah 16 digit';
+                    } else {
+                      return null;
+                    }
+                  },
                 ),
 
                 // NAMA KEPALA KELUARGA
@@ -112,7 +157,7 @@ class _SuratKtp extends State<SuratKtp> {
                 TextInputField(
                   color: widget.color,
                   controller: _address,
-                  fieldName: 'Alamat',
+                  fieldName: 'Alamat sesuai KTP',
                 ),
 
                 const Text(
@@ -133,6 +178,18 @@ class _SuratKtp extends State<SuratKtp> {
                   color: widget.color,
                   controller: _nik,
                   fieldName: 'NIK',
+                  customValidator: (value) {
+                    RegExp regExp = RegExp(r'^[1-9]+[0-9]*$');
+                    if (value == '' || value!.isEmpty) {
+                      return 'NIK tidak boleh kosong';
+                    } else if (!regExp.hasMatch(value)) {
+                      return 'NIK hanya berupa angka';
+                    } else if (!(value.length == 16)) {
+                      return 'NIK berjumlah 16';
+                    } else {
+                      return null;
+                    }
+                  },
                 ),
 
                 // Nama lengkap
@@ -219,10 +276,14 @@ class _SuratKtp extends State<SuratKtp> {
 
                 Center(
                   child: SubmitFormButton(
+                    customButtonName: 'Cetak Formulir',
                     color: widget.color,
                     isLoading: isLoading,
-                    submitForm: (context) {},
+                    submitForm: submitButton,
                   ),
+                ),
+                const SizedBox(
+                  height: 30,
                 ),
               ],
             ),

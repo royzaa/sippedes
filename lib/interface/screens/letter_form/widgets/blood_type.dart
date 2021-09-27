@@ -25,7 +25,6 @@ class BloodType extends StatelessWidget {
                 return 'Golongan darah harus diisi';
               }
             },
-            value: 'A',
             onChanged: (String? value) {
               bloodType.text = value ?? 'Tidak tahu';
             },

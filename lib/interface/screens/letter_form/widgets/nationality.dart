@@ -18,6 +18,12 @@ class _NationalityState extends State<Nationality> {
   }
 
   @override
+  void initState() {
+    storeValue();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       child: Column(

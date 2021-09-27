@@ -10,7 +10,6 @@ import 'package:path/path.dart';
 import '../../../../../services/firebase_storage.dart';
 import '../../../../../services/shared_preferences.dart';
 import '../../../../../services/firestore_services.dart' hide FirestoreServices;
-import '../../../../../services/sheet_api.dart';
 import '../text_input_field.dart';
 import '../submit_form_button.dart';
 import '../gender.dart';
@@ -173,14 +172,6 @@ class _SktmState extends State<Sktm> {
   }
 
   @override
-  void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
-      await SheetApi.init();
-    });
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // final Size size = MediaQuery.of(context).size;
     return Form(
@@ -211,6 +202,18 @@ class _SktmState extends State<Sktm> {
                   color: widget.color,
                   controller: _nik,
                   fieldName: 'NIK',
+                  customValidator: (value) {
+                    RegExp regExp = RegExp(r'^[1-9]+[0-9]*$');
+                    if (value == '' || value!.isEmpty) {
+                      return 'NIK tidak boleh kosong';
+                    } else if (!regExp.hasMatch(value)) {
+                      return 'NIK hanya berupa angka';
+                    } else if (!(value.length == 16)) {
+                      return 'NIK berjumlah 16';
+                    } else {
+                      return null;
+                    }
+                  },
                 ),
 
                 // KEWARGANEGARAAN
@@ -261,7 +264,7 @@ class _SktmState extends State<Sktm> {
                 TextInputField(
                   color: widget.color,
                   controller: _address,
-                  fieldName: 'Alamat',
+                  fieldName: 'Alamat sesuai KTP',
                 ),
 
                 // NAMA ANAK
@@ -325,6 +328,9 @@ class _SktmState extends State<Sktm> {
                     isLoading: isLoading,
                     submitForm: submitForm,
                   ),
+                ),
+                const SizedBox(
+                  height: 30,
                 ),
               ],
             ),

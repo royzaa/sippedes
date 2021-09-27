@@ -20,6 +20,12 @@ class _GenderState extends State<Gender> {
   }
 
   @override
+  void initState() {
+    storeValue();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       child: Column(
