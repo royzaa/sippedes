@@ -72,17 +72,23 @@ class _LetterScreenState extends State<LetterScreen> {
             'message from cloud:' + message.notification!.body.toString());
         LocalNotificationServices.display(message);
       });
-      debugPrint('fcm token from shared preferences: ${DataSharedPreferences.getFcmToken()}');
+
+      final fcmFromPref = DataSharedPreferences.getFcmToken();
+      debugPrint('fcm token from shared preferences: $fcmFromPref');
       try {
-        if (DataSharedPreferences.getFcmToken().isEmpty) {
+        if (fcmFromPref.isEmpty) {
           final fcmToken = await _fcm.getToken();
-          FirestoreServices.getAndSaveToken(fcmToken);
-          DataSharedPreferences.setFcmToken(fcmToken ?? '');
+          if (fcmToken != null && fcmToken.isNotEmpty) {
+            await FirestoreServices.getAndSaveToken(fcmToken);
+            await DataSharedPreferences.setFcmToken(fcmToken);
+          }
           debugPrint('fcm token: $fcmToken');
         } else {
           _fcm.onTokenRefresh.listen((token) {
-            FirestoreServices.getAndSaveToken(token);
-            DataSharedPreferences.setFcmToken(token);
+            if (token.isNotEmpty) {
+              FirestoreServices.getAndSaveToken(token);
+              DataSharedPreferences.setFcmToken(token);
+            }
           });
         }
       } catch (e) {

@@ -49,10 +49,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         physics: const BouncingScrollPhysics(),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: size.height,
           width: size.width,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
@@ -67,11 +66,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(
+                height: 20,
+              ),
               SvgPicture.asset(
                 'assets/images/card.svg',
                 fit: BoxFit.cover,
                 height: size.height * 0.225,
                 width: size.width * 0.4,
+              ),
+              const SizedBox(
+                height: 20,
               ),
               Form(
                 key: formKey,
@@ -87,6 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _nikController,
                         cursorColor: Theme.of(context).primaryColor,
                         decoration: InputDecoration(
+                          helperText: '',
                           prefixIcon: Icon(
                             Icons.person,
                             color: Theme.of(context).primaryColor,
@@ -112,9 +118,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
                       TextFormField(
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         validator: (value) {
@@ -123,6 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _emailController,
                         cursorColor: Theme.of(context).primaryColor,
                         decoration: InputDecoration(
+                          helperText: '',
                           prefixIcon: Icon(
                             Icons.email,
                             color: Theme.of(context).primaryColor,
@@ -148,9 +152,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
                       ValueListenableBuilder(
                         valueListenable: _isPasswordNotVisible,
                         builder: (context, bool isPasswordVisible, _) {
@@ -164,6 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             controller: _passwordController,
                             cursorColor: Theme.of(context).primaryColor,
                             decoration: InputDecoration(
+                              helperText: '',
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   _isPasswordNotVisible.value =
@@ -212,12 +214,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 35),
               SubmitButton(
                 nikController: _nikController,
                 emailController: _emailController,
                 passwordController: _passwordController,
                 validation: validate,
               ),
+              const SizedBox(height: 20),
               SizedBox(
                 width: size.width * 0.85,
                 child: const FittedBox(

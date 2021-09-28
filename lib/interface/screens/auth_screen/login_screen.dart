@@ -178,15 +178,26 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               Row(
                 children: [
-                  const Text('Belum punya akun?'),
+                  SizedBox(
+                    width: size.width * 0.3,
+                    child: const FittedBox(
+                      child: Text('Belum punya akun?'),
+                    ),
+                  ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => const RegisterScreen()));
                     },
-                    child: Text(
-                      'Registrasi',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    child: SizedBox(
+                      width: size.width * 0.16,
+                      child: FittedBox(
+                        child: Text(
+                          'Registrasi',
+                          style:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
                     ),
                   ),
                   const Spacer(),
@@ -203,19 +214,27 @@ class _LoginScreenState extends State<LoginScreen> {
                         builder: (context) => const ResetPasswordModalBottom(),
                       );
                     },
-                    child: Text(
-                      'Lupa password',
-                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    child: SizedBox(
+                      width: size.width * 0.25,
+                      child: FittedBox(
+                        child: Text(
+                          'Lupa password',
+                          style:
+                              TextStyle(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
               SubmitButton(
                 isForRegister: false,
                 emailController: _emailController,
                 passwordController: _passwordController,
                 validation: validate,
               ),
+              const SizedBox(height: 20),
               SizedBox(
                 width: size.width * 0.85,
                 child: const FittedBox(

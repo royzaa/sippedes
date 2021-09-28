@@ -128,16 +128,22 @@ class FirestoreServices {
 
   /// Store fcm token to firestore, get inital message, and listen
   static Future<void> getAndSaveToken(String? fcmToken) async {
-    if (fcmToken != null) {
-      final tokenDoc = _firestore
-          .collection('civil')
-          .doc(DataSharedPreferences.getNIK())
-          .collection('tokens')
-          .doc(fcmToken);
-      await tokenDoc.set({
-        'token': fcmToken,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+    try {
+      if (fcmToken != null) {
+        final tokenDoc = _firestore
+            .collection('civil')
+            .doc(DataSharedPreferences.getNIK())
+            .collection('tokens')
+            .doc(fcmToken);
+
+        await tokenDoc.set({
+          'token': fcmToken,
+          'createdAt': FieldValue.serverTimestamp(),
+        }).then(
+            (value) => debugPrint('writing fcm token... with token $fcmToken'));
+      }
+    } on FirebaseException catch (e) {
+      debugPrint('error when write fcm token: $e');
     }
   }
 

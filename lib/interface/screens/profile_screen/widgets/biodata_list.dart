@@ -10,7 +10,8 @@ class BiodataList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = AuthService();
-    const double bottomSpacing = 25.0;
+    // const double bottomSpacing = 25.0;
+    final Size size = MediaQuery.of(context).size;
     return FutureBuilder(
       future: FirestoreServices.getUserProfile(auth.getCurrentUser!.uid),
       builder: (_, snapshot) {
@@ -31,92 +32,129 @@ class BiodataList extends StatelessWidget {
           }
         }
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+              maxHeight:
+                  size.height < 600 ? size.height * 0.45 : size.height * 0.45,
+              maxWidth: size.width * 0.85),
+          child: LayoutBuilder(
+            builder: (context, constrains) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    ...['Nama', 'NIK', 'Jenis Kelamin', 'Alamat', 'Tgl'].map(
-                      (item) => Padding(
-                        padding: const EdgeInsets.only(bottom: bottomSpacing),
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
+                    Flexible(
+                      flex: 3,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ...[
+                                'Nama',
+                                'NIK',
+                                'Jenis Kelamin',
+                                'Alamat',
+                                'Tgl'
+                              ].map(
+                                (item) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 0),
+                                  child: SizedBox(
+                                    height: constrains.maxHeight * 0.07,
+                                    child: FittedBox(
+                                      child: Text(
+                                        item,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ...[...(':' * 5).split('')].map(
-                      (colon) => Padding(
-                        padding: const EdgeInsets.only(
-                          bottom: bottomSpacing,
-                          right: 15,
-                          left: 10,
-                        ),
-                        child: Text(
-                          colon,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ...[...(':' * 5).split('')].map(
+                                (colon) => Padding(
+                                  padding: const EdgeInsets.only(
+                                    // bottom: bottomSpacing,
+                                    right: 15,
+                                    left: 10,
+                                  ),
+                                  child: SizedBox(
+                                    height: constrains.maxHeight * 0.07,
+                                    child: FittedBox(
+                                      child: Text(
+                                        colon,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ...[
-                      userProfile.name,
-                      userProfile.nik,
-                      userProfile.gender,
-                      userProfile.address,
-                      userProfile.ttgl
-                    ].map(
-                      (value) => Padding(
-                        padding: const EdgeInsets.only(bottom: bottomSpacing),
-                        child: Text(
-                          value,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ...[
+                                userProfile.name,
+                                userProfile.nik,
+                                userProfile.gender,
+                                userProfile.address,
+                                userProfile.ttgl
+                              ].map(
+                                (value) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 0),
+                                  child: SizedBox(
+                                    height: constrains.maxHeight * 0.07,
+                                    child: FittedBox(
+                                      child: Text(
+                                        value,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                        ),
+                        ],
                       ),
-                    )
-                  ],
-                )
-              ],
-            ),
-            isLessThan17()
-                ? const Text(
-                    'Umur anda kurang dari 17 tahun, anda belum memiliki izin membuat surat.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 14,
                     ),
-                  )
-                : const SizedBox(),
-          ],
+                    isLessThan17()
+                        ? const Flexible(
+                            child: Text(
+                              'Umur anda kurang dari 17 tahun, anda belum memiliki izin membuat surat.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                              ),
+                            ),
+                          )
+                        : const SizedBox(),
+                  ],
+                ),
+              );
+            },
+          ),
         );
       },
     );

@@ -60,8 +60,7 @@ class _SktmState extends State<Sktm> {
   }
 
   void pickKTPImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -81,8 +80,7 @@ class _SktmState extends State<Sktm> {
   }
 
   void pickKKImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -92,7 +90,7 @@ class _SktmState extends State<Sktm> {
       final tempImage = File(pickImage.path);
       setState(() {
         _kkImage = tempImage;
-        _ktpFileName = DataSharedPreferences.getNIK() +
+        _kkFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
             basename(_kkImage!.path);
       });
@@ -331,7 +329,8 @@ class _SktmState extends State<Sktm> {
                   kkFileName: _kkFileName ?? '',
                   color: widget.color,
                   image: _kkImage,
-                  pickImage: () => pickKKImage(expctedImageType: 'KK'),),
+                  pickImage: () => pickKKImage(expctedImageType: 'KK'),
+                ),
 
                 Center(
                   child: SubmitFormButton(

@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,6 +15,7 @@ class ProfileScreen extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
     final auth = AuthService();
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Flexible(
           child: Container(
@@ -57,6 +59,8 @@ class ProfileScreen extends StatelessWidget {
                                   onPressed: () {
                                     DataSharedPreferences.setNIK('');
                                     DataSharedPreferences.setUserName('');
+                                    DataSharedPreferences.setFcmToken('');
+                                    FirebaseMessaging.instance.deleteToken();
                                     auth.signOut();
                                     Navigator.pop(context);
                                     Navigator.of(context).pushReplacement(
@@ -94,7 +98,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         Flexible(
           child: SizedBox(
-            height: size.height * 0.5 - MediaQuery.of(context).padding.top,
+            height: size.height * 0.45 - MediaQuery.of(context).padding.top,
             child: const Center(
               child: BiodataList(),
             ),
