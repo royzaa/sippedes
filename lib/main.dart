@@ -20,10 +20,6 @@ Future main() async {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
-
   debugPrint("Handling a background message: ${message.messageId}");
 }
 
@@ -32,13 +28,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseMessaging.instance.getInitialMessage();
-
-    FirebaseMessaging.onMessage.listen((message) {
-      debugPrint('message from cloud:' + message.notification!.body.toString());
-      LocalNotificationServices.display(message);
-    });
-
     return MaterialApp(
       title: 'SIPPeDes',
       theme: ThemeData(

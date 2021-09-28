@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import './widgets/notification_icon.dart';
 import './widgets/letter_grid.dart';
 import '../../../services/shared_preferences.dart';
 import '../../../services/firestore_services.dart';
 import '../../../services/auth_services.dart';
+import '../../../services/local_notification_services.dart';
 
 class LetterScreen extends StatefulWidget {
   const LetterScreen({Key? key}) : super(key: key);
@@ -59,6 +61,35 @@ class _LetterScreenState extends State<LetterScreen> {
         setState(() {});
       });
     }
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      final _fcm = FirebaseMessaging.instance;
+      _fcm.getInitialMessage();
+      _fcm.subscribeToTopic('announcement');
+
+      FirebaseMessaging.onMessage.listen((message) {
+        debugPrint(
+            'message from cloud:' + message.notification!.body.toString());
+        LocalNotificationServices.display(message);
+      });
+      debugPrint('fcm token from shared preferences: ${DataSharedPreferences.getFcmToken()}');
+      try {
+        if (DataSharedPreferences.getFcmToken().isEmpty) {
+          final fcmToken = await _fcm.getToken();
+          FirestoreServices.getAndSaveToken(fcmToken);
+          DataSharedPreferences.setFcmToken(fcmToken ?? '');
+          debugPrint('fcm token: $fcmToken');
+        } else {
+          _fcm.onTokenRefresh.listen((token) {
+            FirestoreServices.getAndSaveToken(token);
+            DataSharedPreferences.setFcmToken(token);
+          });
+        }
+      } catch (e) {
+        debugPrint('error when get and store fcm token: $e');
+      }
+    });
+
     super.initState();
   }
 

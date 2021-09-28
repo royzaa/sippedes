@@ -51,7 +51,7 @@ class _SuratPindahState extends State<SuratPindah> {
       _ttgl,
       _jk,
       _relationshipStatus;
-  File? ktpImage, kkImage, photoImage;
+  File? _ktpImage, _kkImage, _photoImage;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -69,10 +69,8 @@ class _SuratPindahState extends State<SuratPindah> {
     return status;
   }
 
-  void pickImage(
+  void pickKTPImage(
       {required String expctedImageType,
-      required String fileName,
-      required File? image,
       bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
@@ -82,10 +80,52 @@ class _SuratPindahState extends State<SuratPindah> {
 
       final tempImage = File(pickImage.path);
       setState(() {
-        image = tempImage;
-        fileName = DataSharedPreferences.getNIK() +
+        _ktpImage = tempImage;
+        _ktpFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
-            basename(image!.path);
+            basename(_ktpImage!.path);
+      });
+    } on PlatformException catch (e) {
+      debugPrint('Error when pick image: $e');
+    }
+  }
+
+  void pickKKImage(
+      {required String expctedImageType,
+      bool fromCamera = false}) async {
+    try {
+      final pickImage = await ImagePicker().pickImage(
+        source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+      );
+      if (pickImage == null) return;
+
+      final tempImage = File(pickImage.path);
+      setState(() {
+        _kkImage = tempImage;
+        _kkFileName = DataSharedPreferences.getNIK() +
+            '_${expctedImageType}_' +
+            basename(_kkImage!.path);
+      });
+    } on PlatformException catch (e) {
+      debugPrint('Error when pick image: $e');
+    }
+  }
+
+  void pickPhotoImage(
+      {required String expctedImageType,
+      bool fromCamera = false}) async {
+    try {
+      final pickImage = await ImagePicker().pickImage(
+        source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+      );
+      if (pickImage == null) return;
+
+      final tempImage = File(pickImage.path);
+      setState(() {
+        _photoImage = tempImage;
+        _photoFileName = DataSharedPreferences.getNIK() +
+            '_${expctedImageType}_' +
+            basename(_photoImage!.path);
       });
     } on PlatformException catch (e) {
       debugPrint('Error when pick image: $e');
@@ -118,7 +158,7 @@ class _SuratPindahState extends State<SuratPindah> {
   void submitForm(BuildContext context) async {
     if (validate()) {
       try {
-        if (kkImage == null && ktpImage == null && photoImage == null) {
+        if (_kkImage == null && _ktpImage == null && _photoImage == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen berupa foto belum lengkap'),
@@ -135,7 +175,7 @@ class _SuratPindahState extends State<SuratPindah> {
           uploadImageToFirebase(
                   fileUrl: _ktpUrl,
                   context: context,
-                  image: ktpImage,
+                  image: _ktpImage,
                   picFileName: _ktpFileName ?? _nik.text,
                   expctedImageType: 'KTP')
               .then(
@@ -163,13 +203,13 @@ class _SuratPindahState extends State<SuratPindah> {
           uploadImageToFirebase(
               context: context,
               expctedImageType: 'KK',
-              image: kkImage,
+              image: _kkImage,
               fileUrl: _kkUrl,
               picFileName: _kkFileName);
           uploadImageToFirebase(
               context: context,
               expctedImageType: 'Photo',
-              image: photoImage,
+              image: _photoImage,
               fileUrl: _photoUrl,
               picFileName: _photoFileName);
           await FirestoreLetterServices.writeLetterStatus(
@@ -344,23 +384,16 @@ class _SuratPindahState extends State<SuratPindah> {
                 Ktp(
                   ktpFileName: _ktpFileName ?? '',
                   color: widget.color,
-                  image: ktpImage,
-                  pickImage: () => pickImage(
-                    image: ktpImage,
-                    expctedImageType: 'KTP',
-                    fileName: _ktpFileName ?? '',
-                  ),
+                  image: _ktpImage,
+                  pickImage: () => pickKTPImage(expctedImageType: 'KTP'),
                 ),
 
                 // KK
                 Kk(
                   kkFileName: _kkFileName ?? '',
                   color: widget.color,
-                  image: kkImage,
-                  pickImage: () => pickImage(
-                      image: kkImage,
-                      expctedImageType: 'KK',
-                      fileName: _kkFileName ?? ''),
+                  image: _kkImage,
+                  pickImage: () => pickKKImage(expctedImageType: 'KK')
                 ),
 
                 // PHOTO
@@ -375,11 +408,8 @@ class _SuratPindahState extends State<SuratPindah> {
                   color: widget.color,
                   expectedImageType: 'Photo',
                   fileName: _photoFileName ?? '',
-                  image: photoImage,
-                  pickImage: () => pickImage(
-                      image: photoImage,
-                      expctedImageType: 'KK',
-                      fileName: _photoFileName ?? ''),
+                  image: _photoImage,
+                  pickImage: () => pickPhotoImage(expctedImageType: 'Photo')
                 ),
                 const SizedBox(
                   height: 30,

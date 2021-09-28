@@ -41,7 +41,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
   final TextEditingController _nik = TextEditingController();
   final TextEditingController _nationality = TextEditingController();
   String? _ktpFileName, _ktpUrl, _ttgl, _jk, _relationshipStatus;
-  File? ktpImage;
+  File? _ktpImage;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -61,8 +61,6 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
 
   void pickImage(
       {required String expctedImageType,
-      required String fileName,
-      required File? image,
       bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
@@ -72,10 +70,10 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
 
       final tempImage = File(pickImage.path);
       setState(() {
-        image = tempImage;
-        fileName = DataSharedPreferences.getNIK() +
+        _ktpImage = tempImage;
+        _ktpFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
-            basename(image!.path);
+            basename(_ktpImage!.path);
       });
     } on PlatformException catch (e) {
       debugPrint('Error when pick image: $e');
@@ -108,7 +106,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
   void submitForm(BuildContext context) async {
     if (validate()) {
       try {
-        if (ktpImage == null) {
+        if (_ktpImage == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen berupa foto belum lengkap'),
@@ -125,7 +123,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
           uploadImageToFirebase(
                   fileUrl: _ktpUrl,
                   context: context,
-                  image: ktpImage,
+                  image: _ktpImage,
                   picFileName: _ktpFileName ?? _nik.text,
                   expctedImageType: 'KTP')
               .then(
@@ -319,11 +317,9 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
                 Ktp(
                   ktpFileName: _ktpFileName ?? '',
                   color: widget.color,
-                  image: ktpImage,
+                  image: _ktpImage,
                   pickImage: () => pickImage(
-                    image: ktpImage,
-                    expctedImageType: 'KTP',
-                    fileName: _ktpFileName ?? '',
+                    expctedImageType: 'KTP',                
                   ),
                 ),
 

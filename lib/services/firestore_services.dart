@@ -125,6 +125,22 @@ class FirestoreServices {
               .toList(),
         );
   }
+
+  /// Store fcm token to firestore, get inital message, and listen
+  static Future<void> getAndSaveToken(String? fcmToken) async {
+    if (fcmToken != null) {
+      final tokenDoc = _firestore
+          .collection('civil')
+          .doc(DataSharedPreferences.getNIK())
+          .collection('tokens')
+          .doc(fcmToken);
+      await tokenDoc.set({
+        'token': fcmToken,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
   // static Future<List<QueryDocumentSnapshot>> getAllTrace({
   //   required String registredNIK,
   // }) async {
@@ -240,6 +256,7 @@ class FirestoreLetterServices {
         .collection('history')
         .doc(letterId)
         .set({
+      'nik': DataSharedPreferences.getNIK(),
       'progressStatus': 'Terkirim',
       'readStatus': 'Belum dibaca',
       'letterName': letterName,

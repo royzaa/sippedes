@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
@@ -12,10 +11,10 @@ import '../../../../../services/shared_preferences.dart';
 import '../../../../../services/firestore_services.dart' hide FirestoreServices;
 import '../text_input_field.dart';
 import '../submit_form_button.dart';
-import '../image_selector.dart';
 import '../relationship_status.dart';
 import '../religion.dart';
 import '../birth.dart';
+import '../ktp.dart';
 
 class Skck extends StatefulWidget {
   const Skck({Key? key, required this.color, required this.letterName})
@@ -56,23 +55,25 @@ class _SkckState extends State<Skck> {
 
   void pickImage(
       {required String expctedImageType,
-      required String fileName,
-      required File? image,
       bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
       );
-      if (pickImage == null) return;
-
-      final tempImage = File(pickImage.path);
+      if (pickImage == null) {
+        return;
+      } else {
+        final tempImage = File(pickImage.path);
       setState(() {
+        debugPrint('executed');
         image = tempImage;
-        fileName = DataSharedPreferences.getNIK() +
+        _ktpFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
             basename(image!.path);
+        debugPrint('fileName: $_ktpFileName');
       });
-    } on PlatformException catch (e) {
+      }
+    } catch (e) {
       debugPrint('Error when pick image: $e');
     }
   }
@@ -267,26 +268,13 @@ class _SkckState extends State<Skck> {
 
                 // KTP
 
-                const Text(
-                  'Ambil foto KTP',
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
-                ),
-                ImageSelector(
+                Ktp(
+                  ktpFileName: _ktpFileName ?? '',
                   color: widget.color,
-                  expectedImageType: 'KTP',
-                  fileName: _ktpFileName ?? '',
                   image: image,
                   pickImage: () => pickImage(
-                    image: image,
                     expctedImageType: 'KTP',
-                    fileName: _ktpFileName ?? '',
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
                 ),
 
                 Center(

@@ -36,7 +36,7 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
   final TextEditingController _tempatUsaha = TextEditingController();
 
   String? _ktpFileName, _ktpUrl, _ttgl;
-  File? ktpImage;
+  File? _ktpImage;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -56,8 +56,7 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
 
   void pickImage(
       {required String expctedImageType,
-      required String fileName,
-      required File? image,
+ 
       bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
@@ -67,10 +66,10 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
 
       final tempImage = File(pickImage.path);
       setState(() {
-        image = tempImage;
-        fileName = DataSharedPreferences.getNIK() +
+        _ktpImage = tempImage;
+        _ktpFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
-            basename(image!.path);
+            basename(_ktpImage!.path);
       });
     } on PlatformException catch (e) {
       debugPrint('Error when pick image: $e');
@@ -103,7 +102,7 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
   void submitForm(BuildContext context) async {
     if (validate()) {
       try {
-        if (ktpImage == null) {
+        if (_ktpImage == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen berupa foto belum lengkap'),
@@ -118,7 +117,7 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
 
           uploadImageToFirebase(
-                  image: ktpImage,
+                  image: _ktpImage,
                   context: context,
                   fileUrl: _ktpUrl,
                   picFileName: _ktpFileName,
@@ -260,11 +259,9 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
                 Ktp(
                   ktpFileName: _ktpFileName ?? '',
                   color: widget.color,
-                  image: ktpImage,
+                  image: _ktpImage,
                   pickImage: () => pickImage(
-                    image: ktpImage,
                     expctedImageType: 'KTP',
-                    fileName: _ktpFileName ?? '',
                   ),
                 ),
 

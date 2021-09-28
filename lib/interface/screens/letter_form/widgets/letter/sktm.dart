@@ -41,7 +41,7 @@ class _SktmState extends State<Sktm> {
   final TextEditingController _gradeOrSemester = TextEditingController();
 
   String? _ktpFileName, _kkFileName, _ktpUrl, _kkUrl, _ttgl, _jk;
-  File? kkImage, ktpImage;
+  File? _kkImage, _ktpImage;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -59,10 +59,8 @@ class _SktmState extends State<Sktm> {
     return status;
   }
 
-  void pickImage(
+  void pickKTPImage(
       {required String expctedImageType,
-      required String fileName,
-      required File? image,
       bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
@@ -72,10 +70,31 @@ class _SktmState extends State<Sktm> {
 
       final tempImage = File(pickImage.path);
       setState(() {
-        image = tempImage;
-        fileName = DataSharedPreferences.getNIK() +
+        _ktpImage = tempImage;
+        _ktpFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
-            basename(image!.path);
+            basename(_ktpImage!.path);
+      });
+    } on PlatformException catch (e) {
+      debugPrint('Error when pick image: $e');
+    }
+  }
+
+  void pickKKImage(
+      {required String expctedImageType,
+      bool fromCamera = false}) async {
+    try {
+      final pickImage = await ImagePicker().pickImage(
+        source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+      );
+      if (pickImage == null) return;
+
+      final tempImage = File(pickImage.path);
+      setState(() {
+        _kkImage = tempImage;
+        _ktpFileName = DataSharedPreferences.getNIK() +
+            '_${expctedImageType}_' +
+            basename(_kkImage!.path);
       });
     } on PlatformException catch (e) {
       debugPrint('Error when pick image: $e');
@@ -108,7 +127,7 @@ class _SktmState extends State<Sktm> {
   void submitForm(BuildContext context) async {
     if (validate()) {
       try {
-        if (kkImage == null && ktpImage == null) {
+        if (_kkImage == null && _ktpImage == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen berupa foto belum lengkap'),
@@ -123,7 +142,7 @@ class _SktmState extends State<Sktm> {
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
 
           uploadImageToFirebase(
-                  image: ktpImage,
+                  image: _ktpImage,
                   context: context,
                   fileUrl: _ktpUrl,
                   picFileName: _ktpFileName,
@@ -148,7 +167,7 @@ class _SktmState extends State<Sktm> {
           uploadImageToFirebase(
               context: context,
               expctedImageType: 'KK',
-              image: kkImage,
+              image: _kkImage,
               fileUrl: _kkUrl,
               picFileName: _kkFileName);
           await FirestoreLetterServices.writeLetterStatus(
@@ -303,24 +322,16 @@ class _SktmState extends State<Sktm> {
                 Ktp(
                   ktpFileName: _ktpFileName ?? '',
                   color: widget.color,
-                  image: ktpImage,
-                  pickImage: () => pickImage(
-                    image: ktpImage,
-                    expctedImageType: 'KTP',
-                    fileName: _ktpFileName ?? '',
-                  ),
+                  image: _ktpImage,
+                  pickImage: () => pickKTPImage(expctedImageType: 'KTP'),
                 ),
 
                 // KK
                 Kk(
                   kkFileName: _kkFileName ?? '',
                   color: widget.color,
-                  image: kkImage,
-                  pickImage: () => pickImage(
-                      image: kkImage,
-                      expctedImageType: 'KK',
-                      fileName: _kkFileName ?? ''),
-                ),
+                  image: _kkImage,
+                  pickImage: () => pickKKImage(expctedImageType: 'KK'),),
 
                 Center(
                   child: SubmitFormButton(

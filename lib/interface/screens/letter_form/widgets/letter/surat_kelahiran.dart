@@ -36,7 +36,7 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
   final TextEditingController _mother = TextEditingController();
 
   String? _skFileName, _skUrl, _jk, _date, _time;
-  File? skImage;
+  File? _skImage;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -56,8 +56,6 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
 
   void pickImage(
       {required String expctedImageType,
-      required String fileName,
-      required File? image,
       bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
@@ -67,10 +65,10 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
 
       final tempImage = File(pickImage.path);
       setState(() {
-        image = tempImage;
-        fileName = DataSharedPreferences.getNIK() +
+        _skImage = tempImage;
+        _skFileName = DataSharedPreferences.getNIK() +
             '_${expctedImageType}_' +
-            basename(image!.path);
+            basename(_skImage!.path);
       });
     } on PlatformException catch (e) {
       debugPrint('Error when pick image: $e');
@@ -103,7 +101,7 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
   void submitForm(BuildContext context) async {
     if (validate()) {
       try {
-        if (skImage == null) {
+        if (_skImage == null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Dokumen berupa foto belum lengkap'),
@@ -118,7 +116,7 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
 
           uploadImageToFirebase(
-                  image: skImage,
+                  image: _skImage,
                   context: context,
                   fileUrl: _skUrl,
                   picFileName: _skFileName,
@@ -287,11 +285,10 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
                   color: widget.color,
                   expectedImageType: 'SK Kelahiran',
                   fileName: _skFileName ?? '',
-                  image: skImage,
+                  image: _skImage,
                   pickImage: () => pickImage(
                       expctedImageType: 'SK Kelahiran',
-                      fileName: _skFileName ?? '',
-                      image: skImage),
+                      ),
                 ),
 
                 const SizedBox(

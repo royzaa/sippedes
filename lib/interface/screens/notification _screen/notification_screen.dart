@@ -30,7 +30,7 @@ class NotificationScreen extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasData && snapshot.data != null) {
-            final List listNotification = snapshot.data!.docs;
+            final List listNotification = snapshot.data!.docs.reversed.toList();
 
             if (listNotification.isEmpty) {
               return const Center(
@@ -40,7 +40,7 @@ class NotificationScreen extends StatelessWidget {
             return ListView.separated(
               physics: const BouncingScrollPhysics(),
               shrinkWrap: true,
-              reverse: true,
+              reverse: false,
               separatorBuilder: (_, __) => const Divider(),
               itemCount: listNotification.length,
               itemBuilder: (context, index) {

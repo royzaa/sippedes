@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+
 
 const functions = require("firebase-functions");
 
@@ -7,18 +7,40 @@ const admin = require("firebase-admin");
 
 
 admin.initializeApp();
-exports.sendPushNotification = functions.firestore.document("civil/{nik}/history/{id}").onCreate((snapshot, context) => {
-  return admin.messaging().sendToTopic("letter", {notification: {
-    title: snapshot.data().letterName,
-    body: "Pengajuan untuk" + " " + snapshot.data().letterName + " " + "sudah berstatus" + " " + snapshot.data().progressStatus,
-    clickAction: "FLUTTER_NOTIFICATION_CLICK",
-  }});
-});
+const db = admin.firestore();
+exports.sendPushNotification = functions.firestore
+    .document("civil/{nik}/history/{id}")
+    .onCreate(async (snapshot) => {
+      const letterSnapshot = snapshot.data();
+      const querySnapshot = await db.collection("civil")
+          .doc(letterSnapshot.nik)
+          .collection("tokens")
+          .get();
+      const tokens = querySnapshot.docs.map((snap) => snap.id);
+      return admin.messaging()
+          .sendToDevice(tokens, {notification: {
+            title: letterSnapshot.letterName,
+            body: "Pengajuan untuk" + " " + letterSnapshot.letterName +
+              " " + "sudah berstatus" + " " + letterSnapshot.progressStatus,
+            clickAction: "FLUTTER_NOTIFICATION_CLICK",
+          }});
+    });
 
-exports.sendPushNotificationWhenUpdate = functions.firestore.document("civil/{nik}/history/{id}").onUpdate((change, context) => {
-  return admin.messaging().sendToTopic("letter", {notification: {
-    title: change.after.data().letterName,
-    body: "Pengajuan untuk" + " " + change.after.data().letterName + " " + "sudah berstatus" + " " + change.after.data().progressStatus,
-    clickAction: "FLUTTER_NOTIFICATION_CLICK",
-  }});
-});
+exports.sendPushNotificationWhenUpdate = functions.firestore
+    .document("civil/{nik}/history/{id}")
+    .onUpdate(async (change, context) => {
+      const letterSnapshot = change.after.data();
+      if (letterSnapshot.progressStatus != "Terkirim") {
+        const querySnapshot = await db.collection("civil")
+            .doc(letterSnapshot.nik)
+            .collection("tokens")
+            .get();
+        const tokens = querySnapshot.docs.map((snap) => snap.id);
+        return admin.messaging().sendToDevice(tokens, {notification: {
+          title: letterSnapshot.data().letterName,
+          body: "Pengajuan untuk" + " " + letterSnapshot.data().letterName +
+          " " + "sudah berstatus" + " " + letterSnapshot.data().progressStatus,
+          clickAction: "FLUTTER_NOTIFICATION_CLICK",
+        }});
+      }
+    });
