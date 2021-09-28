@@ -60,9 +60,9 @@ class _SubmitButtonState extends State<SubmitButton> {
                   'Sukses',
                   style: TextStyle(color: Colors.black),
                 ),
-                content: const Text(
-                  'Kami telah mengirimkan email verifikasi. Silakan buka email dan verifikasi email anda',
-                  style: TextStyle(color: Colors.black),
+                content: Text(
+                  'Kami telah mengirimkan email verifikasi ke ${user.email}. Silakan buka email dan verifikasi email anda',
+                  style: const TextStyle(color: Colors.black),
                 ),
                 actions: [
                   TextButton(

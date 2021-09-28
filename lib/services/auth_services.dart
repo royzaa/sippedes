@@ -40,8 +40,10 @@ class AuthService {
   Future<bool> checkEmailVerification() async {
     bool status = false;
     User? user = _firebaseAuth.currentUser;
-    await user!.reload();
-    status = user.emailVerified;
+    if (user != null) {
+      await user.reload();
+      status = user.emailVerified;
+    }
     return status;
   }
 

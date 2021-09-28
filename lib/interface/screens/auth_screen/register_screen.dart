@@ -54,8 +54,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(
-                height: 30,
+              SizedBox(
+                height: MediaQuery.of(context).padding.top + 30,
               ),
               Text(
                 'Silakan lengkapi formulir',
