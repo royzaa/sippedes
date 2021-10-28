@@ -8,6 +8,8 @@ class TextInputField extends StatelessWidget {
     required this.fieldName,
     this.customValidator,
     this.onChanged,
+    this.suffixIcon,
+    this.inputType,
     this.isEnable = true,
     this.isCustom = false,
     this.isUnderline = true,
@@ -15,6 +17,8 @@ class TextInputField extends StatelessWidget {
 
   /// TextEditingContorller for input
   final TextEditingController controller;
+
+  /// color of cursor and border
   final Color color;
 
   /// execute every time the text value in controller changed
@@ -34,6 +38,12 @@ class TextInputField extends StatelessWidget {
   /// Custom validator for spesific input field
   final String? Function(String?)? customValidator;
 
+  /// set keyboard input type
+  final TextInputType? inputType;
+
+  /// suffic icon
+  final Icon? suffixIcon;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -42,7 +52,9 @@ class TextInputField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           isCustom
-              ? const SizedBox()
+              ? const SizedBox(
+                  height: 10,
+                )
               : Text(
                   fieldName,
                   style: const TextStyle(
@@ -56,6 +68,7 @@ class TextInputField extends StatelessWidget {
                   height: 15,
                 ),
           TextFormField(
+            keyboardType: inputType,
             onChanged: onChanged,
             enabled: isEnable,
             cursorColor: color,
@@ -74,6 +87,7 @@ class TextInputField extends StatelessWidget {
                   : const OutlineInputBorder(),
               focusColor: color,
               label: Text(fieldName),
+              suffixIcon: suffixIcon,
             ),
           ),
           isCustom

@@ -47,3 +47,8 @@ app.*.map.json
 
 # Spreadsheet secret key
 lib/key
+
+# google cloud key
+/sippedes-toyareka-b70221bb011f.json
+/sippedes-toyareka-firebase-adminsdk-4iprl-7096d03f47.json
+/npm_uploaddatatodirestore/sippedes-firebase-key.json

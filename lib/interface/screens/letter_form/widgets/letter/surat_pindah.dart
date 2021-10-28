@@ -31,7 +31,10 @@ class SuratPindah extends StatefulWidget {
 }
 
 class _SuratPindahState extends State<SuratPindah> {
-  final TextEditingController _address = TextEditingController();
+  final TextEditingController _village = TextEditingController();
+  final TextEditingController _district = TextEditingController();
+  final TextEditingController _city = TextEditingController();
+  final TextEditingController _province = TextEditingController();
   final TextEditingController _previousAddress = TextEditingController();
   final TextEditingController _name = TextEditingController();
   final TextEditingController _job = TextEditingController();
@@ -50,6 +53,7 @@ class _SuratPindahState extends State<SuratPindah> {
       _kkUrl,
       _ttgl,
       _jk,
+      _newAddress,
       _relationshipStatus;
   File? _ktpImage, _kkImage, _photoImage;
 
@@ -70,8 +74,7 @@ class _SuratPindahState extends State<SuratPindah> {
   }
 
   void pickKTPImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -91,8 +94,7 @@ class _SuratPindahState extends State<SuratPindah> {
   }
 
   void pickKKImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -112,8 +114,7 @@ class _SuratPindahState extends State<SuratPindah> {
   }
 
   void pickPhotoImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -178,28 +179,32 @@ class _SuratPindahState extends State<SuratPindah> {
                   image: _ktpImage,
                   picFileName: _ktpFileName ?? _nik.text,
                   expctedImageType: 'KTP')
-              .then(
-            (value) async => await FirestoreLetterServices.createSuratPindah(
-              education: _education.text,
-              excuse: _excuse.text, // done
-              father: _father.text, // done
-              jk: _jk ?? 'Belum diisi',
-              job: _job.text,
-              kkUrl: _kkUrl ?? 'Belum diisi', // done
-              mother: _mother.text, // done
-              name: _name.text, // done
-              nationality: _nationality.text, // done
-              photoUrl: _photoUrl ?? '', // done
-              previousAddress: _previousAddress.text, // done
-              relationshipStatus: _relationshipStatus ?? 'Belum diisi',
-              ttgl: _ttgl ?? 'Belum diisi', // done
-              address: _address.text, // done
-              ktpUrl: _ktpUrl ?? 'Belum diisi', // done
-              migratedNIK: _nik.text, // done
-              followers: _followers,
-              letterId: generatedId, // done
-            ),
-          );
+              .then((value) async {
+            _newAddress =
+                '${_village.text}. ${_district.text}. ${_city.text}. ${_province.text}.';
+            if (_newAddress != null) {
+              await FirestoreLetterServices.createSuratPindah(
+                education: _education.text,
+                excuse: _excuse.text, // done
+                father: _father.text, // done
+                jk: _jk ?? 'Belum diisi',
+                job: _job.text,
+                kkUrl: _kkUrl ?? 'Belum diisi', // done
+                mother: _mother.text, // done
+                name: _name.text, // done
+                nationality: _nationality.text, // done
+                photoUrl: _photoUrl ?? '', // done
+                previousAddress: _previousAddress.text, // done
+                relationshipStatus: _relationshipStatus ?? 'Belum diisi',
+                ttgl: _ttgl ?? 'Belum diisi', // done
+                address: _newAddress ?? 'Belum diisi', // done
+                ktpUrl: _ktpUrl ?? 'Belum diisi', // done
+                migratedNIK: _nik.text, // done
+                followers: _followers,
+                letterId: generatedId, // done
+              );
+            }
+          });
           uploadImageToFirebase(
               context: context,
               expctedImageType: 'KK',
@@ -220,11 +225,11 @@ class _SuratPindahState extends State<SuratPindah> {
           /// Digunakan oleh admin:
 
           // await FirestoreLetterServices.changeProfileField(
-          //     _userNIK, 'Alamat', _address.text);
+          //     _userNIK, 'Alamat', _village.text);
           // await SheetApi.updateData(
           //     rowKey: DataSharedPreferences.getUserName(),
           //     columnKey: 'Alamat',
-          //     newValue: _address.text);
+          //     newValue: _village.text);
         }
       } catch (e) {
         debugPrint('error when submit new letter: ' + e.toString());
@@ -338,7 +343,7 @@ class _SuratPindahState extends State<SuratPindah> {
                   style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
-                      fontSize: 16),
+                      fontSize: 14),
                 ),
                 TextInputField(
                   isCustom: true,
@@ -357,11 +362,36 @@ class _SuratPindahState extends State<SuratPindah> {
                 ),
 
                 // ALAMAT BARU
-
+                const Text(
+                  'Alamat baru',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14),
+                ),
                 TextInputField(
+                  isCustom: true,
                   color: widget.color,
-                  controller: _address,
-                  fieldName: 'Alamat baru',
+                  controller: _village,
+                  fieldName: 'Desa/Kelurahan (beserta RT & RW)',
+                ),
+                TextInputField(
+                  isCustom: true,
+                  color: widget.color,
+                  controller: _district,
+                  fieldName: 'Kecamatan',
+                ),
+                TextInputField(
+                  isCustom: true,
+                  color: widget.color,
+                  controller: _city,
+                  fieldName: 'Kabupaten/Kota',
+                ),
+                TextInputField(
+                  isCustom: true,
+                  color: widget.color,
+                  controller: _province,
+                  fieldName: 'Provinsi',
                 ),
 
                 // ALAMAT LAMA
@@ -390,11 +420,10 @@ class _SuratPindahState extends State<SuratPindah> {
 
                 // KK
                 Kk(
-                  kkFileName: _kkFileName ?? '',
-                  color: widget.color,
-                  image: _kkImage,
-                  pickImage: () => pickKKImage(expctedImageType: 'KK')
-                ),
+                    kkFileName: _kkFileName ?? '',
+                    color: widget.color,
+                    image: _kkImage,
+                    pickImage: () => pickKKImage(expctedImageType: 'KK')),
 
                 // PHOTO
                 const Text(
@@ -405,12 +434,11 @@ class _SuratPindahState extends State<SuratPindah> {
                       fontSize: 16),
                 ),
                 ImageSelector(
-                  color: widget.color,
-                  expectedImageType: 'Photo',
-                  fileName: _photoFileName ?? '',
-                  image: _photoImage,
-                  pickImage: () => pickPhotoImage(expctedImageType: 'Photo')
-                ),
+                    color: widget.color,
+                    expectedImageType: 'Photo',
+                    fileName: _photoFileName ?? '',
+                    image: _photoImage,
+                    pickImage: () => pickPhotoImage(expctedImageType: 'Photo')),
                 const SizedBox(
                   height: 30,
                 ),

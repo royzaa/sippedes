@@ -58,6 +58,8 @@ class FirestoreServices {
 
   // get and create profile that match with uid from firebase through Profile fromJson
   static Future<Profile> getUserProfile(String uid) async {
+    // makes firestore offline
+    _firestore.settings.persistenceEnabled;
     final jsonData = await _firestore
         .collection('civil')
         .where(
@@ -145,6 +147,19 @@ class FirestoreServices {
     } on FirebaseException catch (e) {
       debugPrint('error when write fcm token: $e');
     }
+  }
+
+  /// search family member with KK
+  static Future<Query> searchFamily(int nomerKK) async {
+    late Query query;
+    try {
+      query = _firestore
+          .collection('civil')
+          .where('KK', isEqualTo: nomerKK.toString());
+    } on FirebaseException catch (e) {
+      debugPrint('error when search family: $e');
+    }
+    return query;
   }
 
   // static Future<List<QueryDocumentSnapshot>> getAllTrace({
