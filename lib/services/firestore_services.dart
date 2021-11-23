@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import '../model/profile.dart';
 import './shared_preferences.dart';
 import '../model/notification.dart';
+import '../model/follower.dart';
 
 enum LetterType {
   ktp,
@@ -131,7 +132,7 @@ class FirestoreServices {
   /// Store fcm token to firestore, get inital message, and listen
   static Future<void> getAndSaveToken(String? fcmToken) async {
     try {
-      if (fcmToken != null) {
+      if (fcmToken != null && fcmToken.isNotEmpty) {
         final tokenDoc = _firestore
             .collection('civil')
             .doc(DataSharedPreferences.getNIK())
@@ -150,16 +151,36 @@ class FirestoreServices {
   }
 
   /// search family member with KK
-  static Future<Query> searchFamily(int nomerKK) async {
-    late Query query;
+  static Future<List<Follower>> searchFamily(int nomerKK) async {
+    List<Follower> list = [];
     try {
-      query = _firestore
-          .collection('civil')
-          .where('KK', isEqualTo: nomerKK.toString());
+      Query<Map<String, dynamic>> query =
+          _firestore.collection('civil').where('KK', isEqualTo: nomerKK);
+      var snapshot = await query.get();
+      debugPrint('snapshot: ${snapshot.docs}');
+      snapshot.docs.forEach((doc) {
+        debugPrint('doc:' + doc.data().toString());
+        list.add(Follower.fromJson(doc));
+      });
     } on FirebaseException catch (e) {
       debugPrint('error when search family: $e');
     }
-    return query;
+    return list;
+  }
+
+  static Future<int> getKK(int nik) async {
+    late int noKK;
+    try {
+      DocumentSnapshot snapshot =
+          await _firestore.collection('civil').doc(nik.toString()).get();
+      var data = snapshot.data() as Map?;
+      if (data != null) {
+        noKK = data['KK'];
+      }
+    } on FirebaseException catch (e) {
+      debugPrint('error when search getKK: $e');
+    }
+    return noKK;
   }
 
   // static Future<List<QueryDocumentSnapshot>> getAllTrace({
@@ -499,7 +520,7 @@ class FirestoreLetterServices {
     required String excuse,
     required String migratedNIK,
     required String letterId,
-    Map<String, String>? followers,
+    List<Map<String, dynamic>>? followers,
   }) async {
     final String submissionDate =
         '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';

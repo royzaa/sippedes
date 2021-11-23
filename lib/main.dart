@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import './services/shared_preferences.dart';
@@ -28,16 +29,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SIPPeDes',
-      theme: ThemeData(
-          primaryColor: const Color.fromRGBO(67, 86, 255, 1),
-          fontFamily: GoogleFonts.poppins().fontFamily,
-          primaryTextTheme: const TextTheme(
-            subtitle1: TextStyle(color: Colors.black, fontSize: 16),
-          )),
-      home: const HomeController(),
-    );
+    return ScreenUtilInit(
+        designSize: const Size(411, 823),
+        builder: () {
+          return MaterialApp(
+            title: 'SIPPeDes',
+            theme: ThemeData(
+                primaryColor: const Color.fromRGBO(67, 86, 255, 1),
+                fontFamily: GoogleFonts.poppins().fontFamily,
+                primaryTextTheme: const TextTheme(
+                  subtitle1: TextStyle(color: Colors.black, fontSize: 16),
+                )),
+            home: const HomeController(),
+          );
+        });
   }
 }
 

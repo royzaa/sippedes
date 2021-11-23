@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../services/firebase_storage.dart';
 import '../../../../../services/shared_preferences.dart';
@@ -19,6 +21,8 @@ import '../relationship_status.dart';
 import '../birth.dart';
 import '../ktp.dart';
 import '../kk.dart';
+import '../followers.dart';
+import '../../../../../model/follower.dart';
 
 class SuratPindah extends StatefulWidget {
   const SuratPindah({Key? key, required this.color, required this.letterName})
@@ -44,7 +48,7 @@ class _SuratPindahState extends State<SuratPindah> {
   final TextEditingController _excuse = TextEditingController();
   final TextEditingController _nik = TextEditingController();
   final TextEditingController _nationality = TextEditingController();
-  final Map<String, String> _followers = {};
+  List<Map<String, dynamic>> _followers = [];
   String? _ktpFileName,
       _kkFileName,
       _photoFileName,
@@ -56,6 +60,7 @@ class _SuratPindahState extends State<SuratPindah> {
       _newAddress,
       _relationshipStatus;
   File? _ktpImage, _kkImage, _photoImage;
+  List<Follower>? _followersData;
 
   final _formKey = GlobalKey<FormState>();
   bool isLoading = false;
@@ -133,11 +138,28 @@ class _SuratPindahState extends State<SuratPindah> {
     }
   }
 
+  void plotFollowers() {
+    if (_followersData != null) {
+      for (Follower data in _followersData!) {
+        Map<String, dynamic> mapData = {
+          'Nama': data.name,
+          'NIK': data.noKTP,
+          'Umur': data.age,
+          'Pendidikan': data.education,
+          'Jenis Kelamin': data.gender,
+        };
+        _followers.add(mapData);
+      }
+      debugPrint('plot follower : $_followersData');
+      // _jsonFollowers = jsonEncode(_followers);
+    }
+  }
+
   Future<void> uploadImageToFirebase(
       {required BuildContext context,
       required String expctedImageType,
       required File? image,
-      required String? fileUrl,
+      required void Function(String?) fileUrl,
       required String? picFileName}) async {
     final fileName = picFileName;
 
@@ -147,7 +169,8 @@ class _SuratPindahState extends State<SuratPindah> {
       setState(() {
         isLoading = false;
       });
-      fileUrl = await p0.ref.getDownloadURL();
+      String url = await p0.ref.getDownloadURL();
+      fileUrl(url);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Dokumen $fileName sudah terkirim'),
@@ -172,9 +195,27 @@ class _SuratPindahState extends State<SuratPindah> {
           });
           final String generatedId =
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
-
+          debugPrint('letter id : $generatedId');
           uploadImageToFirebase(
-                  fileUrl: _ktpUrl,
+              context: context,
+              expctedImageType: 'KK',
+              image: _kkImage,
+              fileUrl: (String? url) {
+                _kkUrl = url;
+              },
+              picFileName: _kkFileName);
+          uploadImageToFirebase(
+              context: context,
+              expctedImageType: 'Photo',
+              image: _photoImage,
+              fileUrl: (String? url) {
+                _photoUrl = url;
+              },
+              picFileName: _photoFileName);
+          uploadImageToFirebase(
+                  fileUrl: (String? url) {
+                    _ktpUrl = url;
+                  },
                   context: context,
                   image: _ktpImage,
                   picFileName: _ktpFileName ?? _nik.text,
@@ -205,18 +246,7 @@ class _SuratPindahState extends State<SuratPindah> {
               );
             }
           });
-          uploadImageToFirebase(
-              context: context,
-              expctedImageType: 'KK',
-              image: _kkImage,
-              fileUrl: _kkUrl,
-              picFileName: _kkFileName);
-          uploadImageToFirebase(
-              context: context,
-              expctedImageType: 'Photo',
-              image: _photoImage,
-              fileUrl: _photoUrl,
-              picFileName: _photoFileName);
+
           await FirestoreLetterServices.writeLetterStatus(
               letterId: generatedId,
               letterType: LetterType.suratPindah,
@@ -239,7 +269,7 @@ class _SuratPindahState extends State<SuratPindah> {
 
   @override
   Widget build(BuildContext context) {
-    // final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery.of(context).size;
     return Form(
       key: _formKey,
       child: Padding(
@@ -250,8 +280,8 @@ class _SuratPindahState extends State<SuratPindah> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(
-                  height: 30,
+                SizedBox(
+                  height: 30.h,
                 ),
 
                 // NAMA LENGKAP
@@ -442,6 +472,99 @@ class _SuratPindahState extends State<SuratPindah> {
                 const SizedBox(
                   height: 30,
                 ),
+                // ADD FAMILY
+                SizedBox(
+                  child: Column(
+                    children: [
+                      const Text(
+                        'Ada anggota keluarga yang ikut pindah?',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Container(
+                        width: size.width * 0.65,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 1,
+                            ),
+                            shape: BoxShape.rectangle),
+                        padding: const EdgeInsets.all(9),
+                        margin: const EdgeInsets.symmetric(vertical: 15),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            minimumSize: const Size(double.infinity, 30),
+                          ),
+                          onPressed: () {
+                            if (validate()) {
+                              showDialog(
+                                context: context,
+                                useRootNavigator: true,
+                                builder: (context) => Followers(
+                                  nik: int.parse(_nik.text),
+                                ),
+                              ).then(
+                                (value) {
+                                  setState(() {
+                                    _followersData = value;
+                                  });
+                                  plotFollowers();
+                                },
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'Tambah pengikut',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 15.h,
+                ),
+                if (_followersData != null)
+                  _followersData!.isNotEmpty
+                      ? Wrap(
+                          children: [
+                            Text(
+                              '\nDaftar pengikut :  ',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                            ..._followersData!
+                                .map(
+                                  (data) => Chip(
+                                    label: Text(
+                                      data.name,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15.r),
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                  ),
+                                )
+                                .toList()
+                          ],
+                        )
+                      : const SizedBox(),
+                SizedBox(
+                  height: 20.h,
+                ),
                 Center(
                   child: SubmitFormButton(
                     color: widget.color,
@@ -449,8 +572,8 @@ class _SuratPindahState extends State<SuratPindah> {
                     submitForm: submitForm,
                   ),
                 ),
-                const SizedBox(
-                  height: 30,
+                SizedBox(
+                  height: 30.h,
                 ),
               ],
             ),
