@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Follower {
-  final String name, gender, age, education, noKTP;
+  final String name, gender, age, education, noKTP, status;
 
   Follower({
     required this.name,
@@ -9,6 +9,7 @@ class Follower {
     required this.age,
     required this.education,
     required this.noKTP,
+    required this.status,
   });
 
   factory Follower.fromJson(QueryDocumentSnapshot<Map<String, dynamic>> json) {
@@ -19,6 +20,7 @@ class Follower {
       education: data['Pendidikan'],
       gender: data['Jenis Kelamin'],
       noKTP: data['NIK'].toString(),
+      status: data['Status Perkawinan'],
     );
   }
 

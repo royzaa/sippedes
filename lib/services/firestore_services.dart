@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 import '../model/profile.dart';
 import './shared_preferences.dart';
@@ -138,7 +139,6 @@ class FirestoreServices {
             .doc(DataSharedPreferences.getNIK())
             .collection('tokens')
             .doc(fcmToken);
-
         await tokenDoc.set({
           'token': fcmToken,
           'createdAt': FieldValue.serverTimestamp(),
@@ -335,6 +335,8 @@ class FirestoreLetterServices {
     }
   }
 
+  static const String _letterCollectionName = 'letter';
+
   static Future createSKKematian({
     required String address,
     required String skUrl,
@@ -351,9 +353,9 @@ class FirestoreLetterServices {
     required String letterId,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
     await FirestoreServices._firestore
-        .collection('Surat Kematian')
+        .collection(_letterCollectionName)
         .doc(letterId)
         .set({
       'address': address,
@@ -370,6 +372,12 @@ class FirestoreLetterServices {
       'relationship': relationship,
       'letterId': letterId,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan Surat Keterangan Kematian',
+      'sender': DataSharedPreferences.getUserName(),
+      'haveBeenReadByHost': false,
+      'type': 'suratKematian',
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 
@@ -387,9 +395,9 @@ class FirestoreLetterServices {
     required String letterId,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
     await FirestoreServices._firestore
-        .collection('Surat Kelahiran')
+        .collection(_letterCollectionName)
         .doc(letterId)
         .set({
       'address': address,
@@ -404,6 +412,12 @@ class FirestoreLetterServices {
       'mother': mother,
       'letterId': letterId,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan Surat Keterangan Lahir',
+      'sender': DataSharedPreferences.getUserName(),
+      'haveBeenReadByHost': false,
+      'type': 'suratKelahiran',
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 
@@ -420,9 +434,9 @@ class FirestoreLetterServices {
     required String letterId,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
     await FirestoreServices._firestore
-        .collection('Keterangan Usaha')
+        .collection(_letterCollectionName)
         .doc(letterId)
         .set({
       'address': address,
@@ -434,6 +448,12 @@ class FirestoreLetterServices {
       'tempatUsaha': tempatUsaha,
       'letterId': letterId,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan Surat Keterangan Usaha',
+      'sender': DataSharedPreferences.getUserName(),
+      'haveBeenReadByHost': false,
+      'type': 'keteranganUsaha',
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 
@@ -451,8 +471,11 @@ class FirestoreLetterServices {
     required String letterId,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
-    await FirestoreServices._firestore.collection('SKCK').doc(letterId).set({
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
+    await FirestoreServices._firestore
+        .collection(_letterCollectionName)
+        .doc(letterId)
+        .set({
       'address': address,
       'ktpUrl': ktpUrl,
       'name': name,
@@ -464,6 +487,12 @@ class FirestoreLetterServices {
       'necessity': necessity,
       'letterId': letterId,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan SKCK',
+      'sender': DataSharedPreferences.getUserName(),
+            'haveBeenReadByHost': false,
+      'type': 'skck',
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 
@@ -484,8 +513,11 @@ class FirestoreLetterServices {
     required String letterId,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
-    await FirestoreServices._firestore.collection('SKTM').doc(letterId).set({
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
+    await FirestoreServices._firestore
+        .collection(_letterCollectionName)
+        .doc(letterId)
+        .set({
       'address': address,
       'ktpUrl': ktpUrl,
       'kkUrl': kkUrl,
@@ -499,11 +531,22 @@ class FirestoreLetterServices {
       'gradeOrSemester': gradeOrSemester,
       'letterId': letterId,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan SKTM',
+      'sender': DataSharedPreferences.getUserName(),
+      'haveBeenReadByHost': false,
+      'type': 'sktm',
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 
   static Future createSuratPindah({
-    required String address,
+    required String district,
+    required String subDistrict,
+    required String village,
+    required String province,
+    required String rt,
+    required String rw,
     required String ktpUrl,
     required String kkUrl,
     required String photoUrl,
@@ -516,6 +559,7 @@ class FirestoreLetterServices {
     required String job,
     required String education,
     required String father,
+    required String religion,
     required String mother,
     required String excuse,
     required String migratedNIK,
@@ -523,12 +567,17 @@ class FirestoreLetterServices {
     List<Map<String, dynamic>>? followers,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
     await FirestoreServices._firestore
-        .collection('Surat Pindah')
+        .collection(_letterCollectionName)
         .doc(letterId)
         .set({
-      'address': address,
+      'province': province,
+      'district': district,
+      'subDistrict': subDistrict,
+      'village': village,
+      'rt': rt,
+      'rw': rw,
       'ktpUrl': ktpUrl,
       'kkUrl': kkUrl,
       'photoUrl': photoUrl,
@@ -547,6 +596,12 @@ class FirestoreLetterServices {
       'letterId': letterId,
       'followers': followers,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan Surat Pindah',
+      'sender': DataSharedPreferences.getUserName(),
+      'haveBeenReadByHost': false,
+      'type': 'suratPindah',
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 
@@ -567,9 +622,9 @@ class FirestoreLetterServices {
     required String letterId,
   }) async {
     final String submissionDate =
-        '${DateTime.now().day} ${DateTime.now().month} ${DateTime.now().year}';
+        DateFormat('EEE, d MMMM y').format(DateTime.now());
     await FirestoreServices._firestore
-        .collection('Surat Kehilangan')
+        .collection(_letterCollectionName)
         .doc(letterId)
         .set({
       'address': address,
@@ -584,6 +639,13 @@ class FirestoreLetterServices {
       'lostDescription': lostDescription,
       'letterId': letterId,
       'submissionDate': submissionDate,
+      'time': FieldValue.serverTimestamp(),
+      'title': 'Pengajuan Surat Kehilangan',
+      'sender': DataSharedPreferences.getUserName(),
+      'haveBeenReadByHost': false,
+      'type': 'suratKehilangan',
+      'nik': nik,
+      'UserNIK': DataSharedPreferences.getNIK(),
     });
   }
 }

@@ -30,7 +30,8 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
   final TextEditingController _address = TextEditingController();
   final TextEditingController _name = TextEditingController();
   final TextEditingController _lamaUsaha = TextEditingController();
-  final TextEditingController _nik = TextEditingController();
+  final TextEditingController _nik =
+      TextEditingController(text: DataSharedPreferences.getNIK());
   final TextEditingController _jenisUsaha = TextEditingController();
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _tempatUsaha = TextEditingController();
@@ -55,9 +56,7 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
   }
 
   void pickImage(
-      {required String expctedImageType,
- 
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -80,7 +79,7 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
       {required BuildContext context,
       required String expctedImageType,
       required File? image,
-      required String? fileUrl,
+      required void Function(String?) fileUrl,
       required String? picFileName}) async {
     final fileName = picFileName;
 
@@ -90,10 +89,11 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
       setState(() {
         isLoading = false;
       });
-      fileUrl = await p0.ref.getDownloadURL();
+      String url = await p0.ref.getDownloadURL();
+      fileUrl(url);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Dokumen $fileName sudah terkirim'),
+        const SnackBar(
+          content: Text('Pengajuan anda sudah terkirim'),
         ),
       );
     });
@@ -119,7 +119,9 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
           uploadImageToFirebase(
                   image: _ktpImage,
                   context: context,
-                  fileUrl: _ktpUrl,
+                  fileUrl: (url) {
+                    _ktpUrl = url;
+                  },
                   picFileName: _ktpFileName,
                   expctedImageType: 'KTP')
               .then(

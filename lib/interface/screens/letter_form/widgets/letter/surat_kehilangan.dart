@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../services/firebase_storage.dart';
 import '../../../../../services/shared_preferences.dart';
@@ -17,6 +18,7 @@ import '../education_degree.dart';
 import '../relationship_status.dart';
 import '../birth.dart';
 import '../ktp.dart';
+import '../date_time_picker.dart';
 
 class SuratKehilangan extends StatefulWidget {
   const SuratKehilangan(
@@ -36,11 +38,11 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
   final TextEditingController _education = TextEditingController();
   final TextEditingController _what = TextEditingController();
   final TextEditingController _where = TextEditingController();
-  final TextEditingController _when = TextEditingController();
   final TextEditingController _necessity = TextEditingController();
-  final TextEditingController _nik = TextEditingController();
+  final TextEditingController _nik =
+      TextEditingController(text: DataSharedPreferences.getNIK());
   final TextEditingController _nationality = TextEditingController();
-  String? _ktpFileName, _ktpUrl, _ttgl, _jk, _relationshipStatus;
+  String? _ktpFileName, _ktpUrl, _ttgl, _jk, _relationshipStatus, _date, _time;
   File? _ktpImage;
 
   final _formKey = GlobalKey<FormState>();
@@ -60,8 +62,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
   }
 
   void pickImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -84,7 +85,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
       {required BuildContext context,
       required String expctedImageType,
       required File? image,
-      required String? fileUrl,
+      required void Function(String?) fileUrl,
       required String? picFileName}) async {
     final fileName = picFileName;
 
@@ -94,7 +95,8 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
       setState(() {
         isLoading = false;
       });
-      fileUrl = await p0.ref.getDownloadURL();
+      String url = await p0.ref.getDownloadURL();
+      fileUrl(url);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Pengajuan anda sudah terkirim'),
@@ -121,7 +123,9 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
 
           uploadImageToFirebase(
-                  fileUrl: _ktpUrl,
+                  fileUrl: (url) {
+                    _ktpUrl = url;
+                  },
                   context: context,
                   image: _ktpImage,
                   picFileName: _ktpFileName ?? _nik.text,
@@ -131,7 +135,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
                 await FirestoreLetterServices.createSuratKehilangan(
               lostDescription: {
                 'what': _what.text,
-                'when': _when.text,
+                'when': 'jam: $_time tanggal: $_date',
                 'where': _where.text,
               },
               jk: _jk ?? 'Belum diisi',
@@ -297,11 +301,23 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
                   controller: _what,
                   fieldName: 'Apa barang yang hilang',
                 ),
-                TextInputField(
-                  isCustom: true,
+
+                SizedBox(
+                  height: 20.h,
+                ),
+
+                Text(
+                  'Kapan perkiraan hilang',
+                  style: TextStyle(fontSize: 16.h),
+                ),
+                DateTimePicker(
                   color: widget.color,
-                  controller: _when,
-                  fieldName: 'Kapan perkiraan hilang',
+                  onDateValue: (date) {
+                    _date = date;
+                  },
+                  onTimeValue: (time) {
+                    _time = time;
+                  },
                 ),
                 TextInputField(
                   isCustom: true,
@@ -319,7 +335,7 @@ class _SuratKehilanganState extends State<SuratKehilangan> {
                   color: widget.color,
                   image: _ktpImage,
                   pickImage: () => pickImage(
-                    expctedImageType: 'KTP',                
+                    expctedImageType: 'KTP',
                   ),
                 ),
 

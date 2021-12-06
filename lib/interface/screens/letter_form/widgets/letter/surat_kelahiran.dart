@@ -29,7 +29,8 @@ class SuratKelahiran extends StatefulWidget {
 
 class _SuratKelahiranState extends State<SuratKelahiran> {
   final TextEditingController _address = TextEditingController();
-  final TextEditingController _nik = TextEditingController();
+  final TextEditingController _nik =
+      TextEditingController(text: DataSharedPreferences.getNIK());
   final TextEditingController _name = TextEditingController();
   final TextEditingController _place = TextEditingController();
   final TextEditingController _father = TextEditingController();
@@ -55,8 +56,7 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
   }
 
   void pickImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -79,7 +79,7 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
       {required BuildContext context,
       required String expctedImageType,
       required File? image,
-      required String? fileUrl,
+      required void Function(String?) fileUrl,
       required String? picFileName}) async {
     final fileName = picFileName;
 
@@ -89,10 +89,11 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
       setState(() {
         isLoading = false;
       });
-      fileUrl = await p0.ref.getDownloadURL();
+      String url = await p0.ref.getDownloadURL();
+      fileUrl(url);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Dokumen $fileName sudah terkirim'),
+        const SnackBar(
+          content: Text('Pengajuan anda sudah terkirim'),
         ),
       );
     });
@@ -118,7 +119,9 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
           uploadImageToFirebase(
                   image: _skImage,
                   context: context,
-                  fileUrl: _skUrl,
+                  fileUrl: (url) {
+                    _skUrl = url;
+                  },
                   picFileName: _skFileName,
                   expctedImageType: 'SK Kelahiran')
               .then(
@@ -135,6 +138,10 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
                 skUrl: _skUrl ?? '', // done
                 letterId: generatedId), // done
           );
+          await FirestoreLetterServices.writeLetterStatus(
+              letterId: generatedId,
+              letterType: LetterType.suratKehilangan,
+              registredNIK: DataSharedPreferences.getNIK());
 
           /// Digunakan oleh admin:
 
@@ -287,8 +294,8 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
                   fileName: _skFileName ?? '',
                   image: _skImage,
                   pickImage: () => pickImage(
-                      expctedImageType: 'SK Kelahiran',
-                      ),
+                    expctedImageType: 'SK Kelahiran',
+                  ),
                 ),
 
                 const SizedBox(

@@ -129,9 +129,6 @@ class _BirthState extends State<DateTimePicker> {
               ],
             ),
           ),
-          const SizedBox(
-            height: 30,
-          ),
         ],
       ),
     );

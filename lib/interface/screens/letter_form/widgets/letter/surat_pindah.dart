@@ -22,7 +22,9 @@ import '../birth.dart';
 import '../ktp.dart';
 import '../kk.dart';
 import '../followers.dart';
+import '../religion.dart';
 import '../../../../../model/follower.dart';
+import '../rt_rw.dart';
 
 class SuratPindah extends StatefulWidget {
   const SuratPindah({Key? key, required this.color, required this.letterName})
@@ -35,9 +37,10 @@ class SuratPindah extends StatefulWidget {
 }
 
 class _SuratPindahState extends State<SuratPindah> {
+  final TextEditingController _religion = TextEditingController();
   final TextEditingController _village = TextEditingController();
+  final TextEditingController _subDistrict = TextEditingController();
   final TextEditingController _district = TextEditingController();
-  final TextEditingController _city = TextEditingController();
   final TextEditingController _province = TextEditingController();
   final TextEditingController _previousAddress = TextEditingController();
   final TextEditingController _name = TextEditingController();
@@ -46,7 +49,10 @@ class _SuratPindahState extends State<SuratPindah> {
   final TextEditingController _father = TextEditingController();
   final TextEditingController _mother = TextEditingController();
   final TextEditingController _excuse = TextEditingController();
-  final TextEditingController _nik = TextEditingController();
+  final TextEditingController _rt = TextEditingController();
+  final TextEditingController _rw = TextEditingController();
+  final TextEditingController _nik =
+      TextEditingController(text: DataSharedPreferences.getNIK());
   final TextEditingController _nationality = TextEditingController();
   List<Map<String, dynamic>> _followers = [];
   String? _ktpFileName,
@@ -141,12 +147,13 @@ class _SuratPindahState extends State<SuratPindah> {
   void plotFollowers() {
     if (_followersData != null) {
       for (Follower data in _followersData!) {
-        Map<String, dynamic> mapData = {
+        Map<String, String> mapData = {
           'Nama': data.name,
           'NIK': data.noKTP,
           'Umur': data.age,
           'Pendidikan': data.education,
           'Jenis Kelamin': data.gender,
+          'Status': data.status,
         };
         _followers.add(mapData);
       }
@@ -222,9 +229,10 @@ class _SuratPindahState extends State<SuratPindah> {
                   expctedImageType: 'KTP')
               .then((value) async {
             _newAddress =
-                '${_village.text}. ${_district.text}. ${_city.text}. ${_province.text}.';
+                '${_village.text}. ${_subDistrict.text}. ${_district.text}. ${_province.text}.';
             if (_newAddress != null) {
               await FirestoreLetterServices.createSuratPindah(
+                religion: _religion.text,
                 education: _education.text,
                 excuse: _excuse.text, // done
                 father: _father.text, // done
@@ -238,7 +246,12 @@ class _SuratPindahState extends State<SuratPindah> {
                 previousAddress: _previousAddress.text, // done
                 relationshipStatus: _relationshipStatus ?? 'Belum diisi',
                 ttgl: _ttgl ?? 'Belum diisi', // done
-                address: _newAddress ?? 'Belum diisi', // done
+                province: _province.text,
+                district: _district.text,
+                village: _village.text,
+                subDistrict: _subDistrict.text,
+                rt: _rt.text,
+                rw: _rw.text,
                 ktpUrl: _ktpUrl ?? 'Belum diisi', // done
                 migratedNIK: _nik.text, // done
                 followers: _followers,
@@ -345,6 +358,12 @@ class _SuratPindahState extends State<SuratPindah> {
                   },
                 ),
 
+                // AGAMA
+
+                Religion(
+                  religion: _religion,
+                ),
+
                 // PENDIDIKAN
 
                 EducationDegree(education: _education),
@@ -399,22 +418,28 @@ class _SuratPindahState extends State<SuratPindah> {
                       fontWeight: FontWeight.bold,
                       fontSize: 14),
                 ),
-                TextInputField(
-                  isCustom: true,
+                RtRw(
                   color: widget.color,
-                  controller: _village,
-                  fieldName: 'Desa/Kelurahan (beserta RT & RW)',
+                  fieldName: '',
+                  rWController: _rw,
+                  rtController: _rt,
                 ),
                 TextInputField(
                   isCustom: true,
                   color: widget.color,
-                  controller: _district,
+                  controller: _village,
+                  fieldName: 'Desa/Kelurahan',
+                ),
+                TextInputField(
+                  isCustom: true,
+                  color: widget.color,
+                  controller: _subDistrict,
                   fieldName: 'Kecamatan',
                 ),
                 TextInputField(
                   isCustom: true,
                   color: widget.color,
-                  controller: _city,
+                  controller: _district,
                   fieldName: 'Kabupaten/Kota',
                 ),
                 TextInputField(

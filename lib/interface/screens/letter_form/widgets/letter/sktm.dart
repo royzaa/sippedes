@@ -34,7 +34,8 @@ class _SktmState extends State<Sktm> {
   final TextEditingController _job = TextEditingController();
   final TextEditingController _religion = TextEditingController();
   final TextEditingController _necessity = TextEditingController();
-  final TextEditingController _nik = TextEditingController();
+  final TextEditingController _nik =
+      TextEditingController(text: DataSharedPreferences.getNIK());
   final TextEditingController _nationality = TextEditingController();
   final TextEditingController _childName = TextEditingController();
   final TextEditingController _schoolOrUniversity = TextEditingController();
@@ -103,7 +104,7 @@ class _SktmState extends State<Sktm> {
       {required BuildContext context,
       required String expctedImageType,
       required File? image,
-      required String? fileUrl,
+      required void Function(String?) fileUrl,
       required String? picFileName}) async {
     final fileName = picFileName;
 
@@ -113,7 +114,8 @@ class _SktmState extends State<Sktm> {
       setState(() {
         isLoading = false;
       });
-      fileUrl = await p0.ref.getDownloadURL();
+      String url = await p0.ref.getDownloadURL();
+      fileUrl(url);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Dokumen $fileName sudah terkirim'),
@@ -138,11 +140,25 @@ class _SktmState extends State<Sktm> {
           });
           final String generatedId =
               (DateTime.now().millisecondsSinceEpoch ~/ 10).toString();
+          uploadImageToFirebase(
+              context: context,
+              expctedImageType: 'KK',
+              image: _kkImage,
+              fileUrl: (url) {
+                _kkUrl = url;
+              },
+              picFileName: _kkFileName);
+          await FirestoreLetterServices.writeLetterStatus(
+              letterId: generatedId,
+              letterType: LetterType.sktm,
+              registredNIK: DataSharedPreferences.getNIK());
 
           uploadImageToFirebase(
                   image: _ktpImage,
                   context: context,
-                  fileUrl: _ktpUrl,
+                  fileUrl: (url) {
+                    _ktpUrl = url;
+                  },
                   picFileName: _ktpFileName,
                   expctedImageType: 'KTP')
               .then(
@@ -162,16 +178,6 @@ class _SktmState extends State<Sktm> {
                 nik: _nik.text, // dine
                 letterId: generatedId), // done
           );
-          uploadImageToFirebase(
-              context: context,
-              expctedImageType: 'KK',
-              image: _kkImage,
-              fileUrl: _kkUrl,
-              picFileName: _kkFileName);
-          await FirestoreLetterServices.writeLetterStatus(
-              letterId: generatedId,
-              letterType: LetterType.sktm,
-              registredNIK: DataSharedPreferences.getNIK());
 
           /// Digunakan oleh admin:
 

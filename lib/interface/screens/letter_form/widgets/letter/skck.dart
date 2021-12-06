@@ -32,7 +32,8 @@ class _SkckState extends State<Skck> {
   final TextEditingController _job = TextEditingController();
   final TextEditingController _religion = TextEditingController();
   final TextEditingController _necessity = TextEditingController();
-  final TextEditingController _nik = TextEditingController();
+  final TextEditingController _nik =
+      TextEditingController(text: DataSharedPreferences.getNIK());
   final TextEditingController _nationality = TextEditingController();
   String? _ktpFileName, _ktpUrl, _ttgl, _relationshipStatus;
   File? image;
@@ -54,8 +55,7 @@ class _SkckState extends State<Skck> {
   }
 
   void pickImage(
-      {required String expctedImageType,
-      bool fromCamera = false}) async {
+      {required String expctedImageType, bool fromCamera = false}) async {
     try {
       final pickImage = await ImagePicker().pickImage(
         source: fromCamera ? ImageSource.camera : ImageSource.gallery,
@@ -64,14 +64,14 @@ class _SkckState extends State<Skck> {
         return;
       } else {
         final tempImage = File(pickImage.path);
-      setState(() {
-        debugPrint('executed');
-        image = tempImage;
-        _ktpFileName = DataSharedPreferences.getNIK() +
-            '_${expctedImageType}_' +
-            basename(image!.path);
-        debugPrint('fileName: $_ktpFileName');
-      });
+        setState(() {
+          debugPrint('executed');
+          image = tempImage;
+          _ktpFileName = DataSharedPreferences.getNIK() +
+              '_${expctedImageType}_' +
+              basename(image!.path);
+          debugPrint('fileName: $_ktpFileName');
+        });
       }
     } catch (e) {
       debugPrint('Error when pick image: $e');
@@ -82,7 +82,7 @@ class _SkckState extends State<Skck> {
       {required BuildContext context,
       required String expctedImageType,
       required File? image,
-      required String? fileUrl,
+      required void Function(String?) fileUrl,
       required String? picFileName}) async {
     final fileName = picFileName;
 
@@ -92,7 +92,8 @@ class _SkckState extends State<Skck> {
       setState(() {
         isLoading = false;
       });
-      fileUrl = await p0.ref.getDownloadURL();
+      String url = await p0.ref.getDownloadURL();
+      fileUrl(url);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Pengajuan anda sudah terkirim'),
@@ -121,7 +122,9 @@ class _SkckState extends State<Skck> {
           uploadImageToFirebase(
                   image: image,
                   context: context,
-                  fileUrl: _ktpUrl,
+                  fileUrl: (url) {
+                    _ktpUrl = url;
+                  },
                   picFileName: _ktpFileName,
                   expctedImageType: 'KTP')
               .then(

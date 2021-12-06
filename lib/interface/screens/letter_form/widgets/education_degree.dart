@@ -25,7 +25,6 @@ class EducationDegree extends StatelessWidget {
                 return 'Pendidikan harus diisi';
               }
             },
-            value: 'SD',
             onChanged: (String? value) {
               education.text = value ?? 'Tingkat pendidikan';
             },

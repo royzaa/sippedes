@@ -63,11 +63,13 @@ class HomeController extends StatelessWidget {
             return const MainApp();
           }
         } else {
-          return Center(
-            child: SizedBox(
-              width: size.width * 0.4,
-              child: LinearProgressIndicator(
-                color: Theme.of(context).primaryColor,
+          return Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: size.width * 0.4,
+                child: LinearProgressIndicator(
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
             ),
           );

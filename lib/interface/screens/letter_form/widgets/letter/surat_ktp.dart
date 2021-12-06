@@ -157,7 +157,7 @@ class _SuratKtp extends State<SuratKtp> {
                 TextInputField(
                   color: widget.color,
                   controller: _address,
-                  fieldName: 'Alamat sesuai KTP',
+                  fieldName: 'Alamat lengkap (beserta RT/RW)',
                 ),
 
                 const Text(
