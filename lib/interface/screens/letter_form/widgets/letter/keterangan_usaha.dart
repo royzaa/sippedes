@@ -137,15 +137,10 @@ class KeteranganUsahaState extends State<KeteranganUsaha> {
                 nik: _nik.text, // dine
                 letterId: generatedId), // done
           );
-
-          /// Digunakan oleh admin:
-
-          // await FirestoreLetterServices.changeProfileField(
-          //     _userNIK, 'Alamat', _address.text);
-          // await SheetApi.updateData(
-          //     rowKey: DataSharedPreferences.getUserName(),
-          //     columnKey: 'Alamat',
-          //     newValue: _address.text);
+          await FirestoreLetterServices.writeLetterStatus(
+              letterId: generatedId,
+              letterType: LetterType.keteranganUsaha,
+              registredNIK: DataSharedPreferences.getNIK());
         }
       } catch (e) {
         debugPrint('error when submit new letter: ' + e.toString());

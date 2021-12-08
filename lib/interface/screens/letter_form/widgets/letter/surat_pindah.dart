@@ -205,20 +205,20 @@ class _SuratPindahState extends State<SuratPindah> {
           debugPrint('letter id : $generatedId');
           uploadImageToFirebase(
               context: context,
-              expctedImageType: 'KK',
-              image: _kkImage,
-              fileUrl: (String? url) {
-                _kkUrl = url;
-              },
-              picFileName: _kkFileName);
-          uploadImageToFirebase(
-              context: context,
               expctedImageType: 'Photo',
               image: _photoImage,
               fileUrl: (String? url) {
                 _photoUrl = url;
               },
               picFileName: _photoFileName);
+          uploadImageToFirebase(
+              context: context,
+              expctedImageType: 'KK',
+              image: _kkImage,
+              fileUrl: (String? url) {
+                _kkUrl = url;
+              },
+              picFileName: _kkFileName);
           uploadImageToFirebase(
                   fileUrl: (String? url) {
                     _ktpUrl = url;
@@ -264,15 +264,6 @@ class _SuratPindahState extends State<SuratPindah> {
               letterId: generatedId,
               letterType: LetterType.suratPindah,
               registredNIK: DataSharedPreferences.getNIK());
-
-          /// Digunakan oleh admin:
-
-          // await FirestoreLetterServices.changeProfileField(
-          //     _userNIK, 'Alamat', _village.text);
-          // await SheetApi.updateData(
-          //     rowKey: DataSharedPreferences.getUserName(),
-          //     columnKey: 'Alamat',
-          //     newValue: _village.text);
         }
       } catch (e) {
         debugPrint('error when submit new letter: ' + e.toString());
@@ -465,6 +456,13 @@ class _SuratPindahState extends State<SuratPindah> {
                   fieldName: 'Alasan pindah',
                 ),
 
+                ImageSelector(
+                    color: widget.color,
+                    expectedImageType: 'Photo',
+                    fileName: _photoFileName ?? '',
+                    image: _photoImage,
+                    pickImage: () => pickPhotoImage(expctedImageType: 'Photo')),
+
                 // KTP
                 Ktp(
                   ktpFileName: _ktpFileName ?? '',
@@ -488,12 +486,7 @@ class _SuratPindahState extends State<SuratPindah> {
                       fontWeight: FontWeight.bold,
                       fontSize: 16),
                 ),
-                ImageSelector(
-                    color: widget.color,
-                    expectedImageType: 'Photo',
-                    fileName: _photoFileName ?? '',
-                    image: _photoImage,
-                    pickImage: () => pickPhotoImage(expctedImageType: 'Photo')),
+
                 const SizedBox(
                   height: 30,
                 ),

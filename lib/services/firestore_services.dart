@@ -158,10 +158,10 @@ class FirestoreServices {
           _firestore.collection('civil').where('KK', isEqualTo: nomerKK);
       var snapshot = await query.get();
       debugPrint('snapshot: ${snapshot.docs}');
-      snapshot.docs.forEach((doc) {
+      for (var doc in snapshot.docs) {
         debugPrint('doc:' + doc.data().toString());
         list.add(Follower.fromJson(doc));
-      });
+      }
     } on FirebaseException catch (e) {
       debugPrint('error when search family: $e');
     }
@@ -490,7 +490,7 @@ class FirestoreLetterServices {
       'time': FieldValue.serverTimestamp(),
       'title': 'Pengajuan SKCK',
       'sender': DataSharedPreferences.getUserName(),
-            'haveBeenReadByHost': false,
+      'haveBeenReadByHost': false,
       'type': 'skck',
       'UserNIK': DataSharedPreferences.getNIK(),
     });

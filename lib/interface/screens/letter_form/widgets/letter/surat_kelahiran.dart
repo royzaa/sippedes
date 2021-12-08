@@ -140,7 +140,7 @@ class _SuratKelahiranState extends State<SuratKelahiran> {
           );
           await FirestoreLetterServices.writeLetterStatus(
               letterId: generatedId,
-              letterType: LetterType.suratKehilangan,
+              letterType: LetterType.suratKelahiran,
               registredNIK: DataSharedPreferences.getNIK());
 
           /// Digunakan oleh admin:
